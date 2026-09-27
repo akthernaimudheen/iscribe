@@ -92,9 +92,13 @@ def main() -> int:
         check("speech model ready", ready_body.get("models_ready") is True,
               f"model={ready_body.get('whisper_model')} device={ready_body.get('device')} "
               f"load={ready_body.get('model_load_s')}s")
-        check("STT provider unchanged",
-              ready_body.get("stt_provider") == "current_faster_whisper",
-              ready_body.get("stt_provider", "?"))
+        # Provider honesty: Deepgram when a key is configured, local
+        # faster-whisper otherwise. Either is correct; silent switching is not.
+        expected_provider = ("deepgram" if ready_body.get("deepgram_configured")
+                             else "current_faster_whisper")
+        check("STT provider matches configuration",
+              ready_body.get("stt_provider") == expected_provider,
+              f"{ready_body.get('stt_provider')} (expected {expected_provider})")
 
         # ---- 1. access control ----------------------------------------
         print("\n1. Access control")
@@ -123,8 +127,6 @@ def main() -> int:
         if "secure" in set_cookie.lower() and base.startswith("http://"):
             # Correct behaviour, not a defect: a Secure cookie must not be sent
             # over plain HTTP, so the session legitimately does not work here.
-            # Prove that, then continue with the header credential. Run this
-            # test against the https:// URL to exercise the real cookie session.
             check("Secure cookie not sent over plain HTTP (expected)",
                   client.get("/api/consultations").status_code == 401,
                   "cookie session is exercised by the https:// run")
@@ -132,6 +134,37 @@ def main() -> int:
         else:
             check("session cookie authenticates subsequent requests",
                   client.get("/api/consultations").status_code == 200)
+
+        # ---- 1b. named clinical session ---------------------------------
+        # The shared key is break-glass: it must NOT be able to review,
+        # approve or export. Clinical actions need a named DOCTOR account.
+        # The smoke doctor is created out-of-band on the host (README:
+        # 'bootstrap the admin, then create users'); its credentials come
+        # from the environment when provided.
+        doctor_email = os.environ.get("SMOKE_DOCTOR_EMAIL", "").strip()
+        doctor_password = os.environ.get("SMOKE_DOCTOR_PASSWORD", "").strip()
+        if doctor_email and doctor_password:
+            doctor = httpx.Client(base_url=base, timeout=180.0,
+                                  follow_redirects=False)
+            dlogin = doctor.post("/api/login", data={"email": doctor_email,
+                                                     "password": doctor_password})
+            check("doctor sign-in (named account)", dlogin.status_code == 303,
+                  f"HTTP {dlogin.status_code}")
+            if dlogin.status_code == 303:
+                # The break-glass key may open consultations (read-only) but
+                # must never reach clinical sign-off: approve/complete/export.
+                probe_cid = client.post("/api/consultations", json={}).json()["id"]
+                check("shared-key session CANNOT approve (read-only by design)",
+                      client.post(f"/api/consultations/{probe_cid}/approve").status_code
+                      in (403, 401),
+                      "break-glass key must stay clinically read-only")
+                client.cookies.update(doctor.cookies)
+                check("doctor session authenticates clinical actions",
+                      client.get("/api/consultations").status_code == 200)
+            doctor.close()
+        else:
+            check("doctor credentials provided (SMOKE_DOCTOR_EMAIL/PASSWORD)",
+                  False, "clinical sign-off steps will be skipped")
 
         check("UI reachable once signed in", client.get("/").status_code == 200)
         check("app.js reachable once signed in", client.get("/app.js").status_code == 200)
@@ -178,6 +211,15 @@ def main() -> int:
         reviewed = client.patch(f"/api/consultations/{cid}/review", json={
             "clinical_note_fields": {"impression": marker},
         })
+        if not doctor_email:
+            # No named account configured: the shared-key session is correctly
+            # refused. Verify the refusal and skip the clinical sign-off steps.
+            check("review refused to a break-glass session (expected)",
+                  reviewed.status_code == 403,
+                  "set SMOKE_DOCTOR_EMAIL/PASSWORD to exercise review/export")
+            print("\n(Clinical sign-off steps skipped: no named doctor "
+                  "credentials — see SMOKE_DOCTOR_EMAIL/SMOKE_DOCTOR_PASSWORD)")
+            return summarise()
         check("save review edits", reviewed.status_code == 200)
         check("edits persisted",
               reviewed.json()["result"]["clinical_note"]["fields"]["impression"] == marker)
