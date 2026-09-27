@@ -89,9 +89,10 @@ jobs:
             echo "::error::database file tracked in git"; FAIL=1
           fi
           # Audio files are allowed ONLY where a committed generator script
-          # certifies synthetic provenance (the edge-tts fixtures). Real
-          # recordings live outside git; this allowlist keeps the gate honest.
-          ALLOWED_AUDIO='^scribe_engine/stt/experimental/indic_malayalam/'
+          # certifies synthetic provenance (the edge-tts fixtures: the
+          # indic-Malayalam test set and the English consultation fixture).
+          # Real recordings live outside git; this allowlist keeps it honest.
+          ALLOWED_AUDIO='^(scribe_engine/stt/experimental/indic_malayalam/|tests/fixtures/english_consultation\.wav$)'
           if git ls-files | grep -E '\.(wav|mp3|m4a|webm|ogg)$' \
               | grep -vE "$ALLOWED_AUDIO"; then
             echo "::error::audio file tracked outside the synthetic-fixture allowlist"; FAIL=1
