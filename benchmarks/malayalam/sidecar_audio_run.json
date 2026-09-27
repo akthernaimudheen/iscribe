@@ -1,0 +1,88 @@
+{
+  "ml_fever_cough": {
+    "seconds": 10.09,
+    "concepts": [
+      [
+        "fever",
+        "PRESENT",
+        "CURRENT",
+        "3 days"
+      ],
+      [
+        "cough",
+        "PRESENT",
+        "CURRENT",
+        "3 days"
+      ],
+      [
+        "vomiting",
+        "PRESENT",
+        "PAST",
+        null
+      ],
+      [
+        "headache",
+        "PRESENT",
+        "CURRENT",
+        null
+      ]
+    ],
+    "present": [
+      "cough",
+      "fever",
+      "headache",
+      "vomiting"
+    ],
+    "absent": [],
+    "malayalam_transcript": "എന്ത് പ്രശ്നമാണ് ഉള്ളത് എനിക്ക് മൂന്ന് ദിവസമായി പനിയും ചുമയും ഉണ്ട്ഛർദ്ദിയോ ഉണ്ടോ തലവേദയും ഉണ്ട് ഇന്നലെ ഛർദ്ദിയും ഉണ്ടായിരുന്നു പാരസിറ്റമോൾ ടാബ്ലറ്റ് രാവിലെ വൈകുന്നേരം കഴിക്കുക",
+    "english_rendering": "what is the problem i have fever and cough for three days, vomiting or headache, yesterday i had vomiting also take paracetamol tablet in the morning and evening"
+  },
+  "ml_chest_pain": {
+    "seconds": 4.72,
+    "concepts": [
+      [
+        "chest pain",
+        "PRESENT",
+        "CURRENT",
+        null
+      ],
+      [
+        "shortness of breath",
+        "PRESENT",
+        "CURRENT",
+        null
+      ]
+    ],
+    "present": [
+      "chest pain",
+      "shortness of breath"
+    ],
+    "absent": [],
+    "malayalam_transcript": "നെഞ്ചുവേദനയും ശ്വാസം മുട്ടലും ഉണ്ട് രണ്ട് വർഷമായി ചവദാഭയബഥ ഉള്ള ആളാണ് ശപ ചെയ്യണം",
+    "english_rendering": "Chest pain and shortness of breath should be cursed by a person who has had asthma for two years."
+  },
+  "ml_english_medical_terms": {
+    "seconds": 5.41,
+    "concepts": [],
+    "present": null,
+    "absent": null,
+    "malayalam_transcript": "ശപ ഐതുക എത്രയാണ് എനിക്ക് രണ്ട് വർഷമായി ചവതാഭയപട ഉണ്ട് ടാബ്ലറ്റ് കഴിക്കുന്നുണ്ട് ഇത് ലാൻഡിലാണ് രാവിലെ ഉപയോഗിക്കുക ശരി ഡോക്ടർ",
+    "english_rendering": "curse how much is five pesos i've had a garbage can for two years. i'm taking a tablet. use it in the morning in the land ok doctor"
+  },
+  "manglish_codeswitch": {
+    "seconds": 3.43,
+    "concepts": [],
+    "present": null,
+    "absent": null,
+    "malayalam_transcript": "എനിക്ക് ഓപധമ്മത എ എന്നതോ ഭമ ആണ് രണ്ടു ദിവസമായി അഥറം മഭവും ഇല്ല",
+    "english_rendering": "I don't have an A or B for two days."
+  },
+  "en_only_control": {
+    "seconds": 7.28,
+    "concepts": [],
+    "present": null,
+    "absent": null,
+    "malayalam_transcript": "നടഥമ ബബാപണ ആൻഡ് തോസൻ ഫോർ ഞേപഥടഥ യേനോന്ന് ചതുത വാ ആചമ എനയോപെം ഞഞയം ഏനോമമേപത യപാഹമേ ഏവവകം യഥോഥോ",
+    "english_rendering": "Nadathama Babapana and Thosan for Nepathathatha Yenon Chathutha Va Achama Enayopem Nai Enomamepatha Yapahame Anything"
+  }
+}

@@ -1,0 +1,760 @@
+{
+ "version": "1.0.0",
+ "description": "Kerala colloquial clinical semantics. Maps what a patient/doctor MEANT to canonical clinical concepts. This is NOT an ASR-correction table (see asr_corrections evidence in scribe_engine/asr_correction.py) and NOT a symptom alias list (that lives in malayalam_clinical_lexicon.json). Every mapping here is context-aware: high/low/check/ask/family are distinguished before any finding is made.",
+ "notes": [
+  "controlled_targets are chronic-condition concepts whose colloquial names double as measurements: 'pressure' can mean the disease, a high value, a low value, a check-up request, or a question about the reading. Each must resolve differently.",
+  "A low marker (കുറവാണ്/low) on a controlled target MUST NOT produce the disease: it produces the derived low concept (hypotension / hypoglycemia).",
+  "A measurement/check marker (നോക്കണം/check/അളക്കണം) is a request for a reading, never a diagnosis.",
+  "An amount question (എത്രയാണ്/how much) is a question about a reading, never a diagnosis.",
+  "A control marker (control ആണ്/normal) means the chronic condition is PRESENT but controlled. Never downgrade to ABSENT: a controlled chronic condition is still a chronic condition.",
+  "Family subjects (അമ്മ/അച്ഛൻ/കുടുംബം) make the mention family history. Never a patient finding.",
+  "Colloquial symptom aliases marked here are merged into the base lexicon at load time; the base scope engine (negation/question/temporality) applies to them unchanged.",
+  "Anything not confidently mapped is left alone: UNKNOWN beats GUESS."
+ ],
+ "controlled_targets": {
+  "hypertension": {
+   "concept": "hypertension_history",
+   "english": "high blood pressure",
+   "aliases_malayalam": [
+    "പ്രഷർ",
+    "പ്രഷറുണ്ട്",
+    "ബിപി",
+    "ബ്ലഡ് പ്രഷർ",
+    "രക്തസമ്മർദ്ദം",
+    "പ്രഷറും",
+    "പ്രഷറുടെ"
+   ],
+   "aliases_english": [
+    "BP",
+    "blood pressure",
+    "pressure"
+   ],
+   "high_markers_malayalam": [
+    "കൂടുതലാണ്",
+    "കൂടുതൽ",
+    "കൂടി",
+    "high ആണ്"
+   ],
+   "high_markers_english": [
+    "high"
+   ],
+   "low_markers_malayalam": [
+    "കുറവാണ്",
+    "താഴ്ന്നു",
+    "താഴ്ന്നതാണ്",
+    "low ആണ്"
+   ],
+   "low_markers_english": [
+    "low"
+   ],
+   "control_markers_malayalam": [
+    "control ആണ്",
+    "കൺട്രോൾ ആണ്",
+    "normal ആണ്",
+    "നോർമൽ ആണ്",
+    "നിയന്ത്രണത്തിലാണ്"
+   ],
+   "control_markers_english": [
+    "controlled",
+    "normal"
+   ],
+   "measurement_markers_malayalam": [
+    "നോക്കണം",
+    "നോക്കാം",
+    "അളക്കണം",
+    "അളക്കാം",
+    "check ചെയ്യണം",
+    "ചെക്ക് ചെയ്യണം",
+    "പരിശോധിക്കണം"
+   ],
+   "measurement_markers_english": [
+    "check",
+    "measure",
+    "pressure check"
+   ],
+   "amount_question_markers_malayalam": [
+    "എത്രയാണ്",
+    "എത്രയാ",
+    "എത്ര"
+   ],
+   "amount_question_markers_english": [
+    "how much",
+    "how high",
+    "pressure എത്ര"
+   ],
+   "low_derived_concept": "hypotension",
+   "low_derived_english": "low blood pressure"
+  },
+  "diabetes": {
+   "concept": "diabetes_history",
+   "english": "diabetes",
+   "aliases_malayalam": [
+    "ഷുഗർ",
+    "ഷുഗറുണ്ട്",
+    "പ്രമേഹം",
+    "ഷുഗർ ലെവൽ",
+    "ഷുഗറും",
+    "ഷുഗറുടെ"
+   ],
+   "aliases_english": [
+    "sugar",
+    "diabetes"
+   ],
+   "high_markers_malayalam": [
+    "കൂടുതലാണ്",
+    "കൂടുതൽ",
+    "high ആണ്"
+   ],
+   "high_markers_english": [
+    "high"
+   ],
+   "low_markers_malayalam": [
+    "കുറവാണ്",
+    "താഴ്ന്നു",
+    "താഴ്ന്നതാണ്",
+    "low ആണ്"
+   ],
+   "low_markers_english": [
+    "low"
+   ],
+   "control_markers_malayalam": [
+    "control ആണ്",
+    "കൺട്രോൾ ആണ്",
+    "normal ആണ്",
+    "നോർമൽ ആണ്"
+   ],
+   "control_markers_english": [
+    "controlled",
+    "normal"
+   ],
+   "measurement_markers_malayalam": [
+    "നോക്കണം",
+    "നോക്കാം",
+    "പരിശോധിക്കണം",
+    "test ചെയ്യണം",
+    "check ചെയ്യണം",
+    "ചെക്ക് ചെയ്യണം"
+   ],
+   "measurement_markers_english": [
+    "check",
+    "test",
+    "measure"
+   ],
+   "amount_question_markers_malayalam": [
+    "എത്രയാണ്",
+    "എത്രയാ",
+    "എത്ര"
+   ],
+   "amount_question_markers_english": [
+    "how much",
+    "how high"
+   ],
+   "low_derived_concept": "hypoglycemia",
+   "low_derived_english": "low blood glucose"
+  }
+ },
+ "colloquial_aliases": [
+  {
+   "concept": "weakness",
+   "inherently_negative": true,
+   "add": [
+    "ബലം ഇല്ല",
+    "കൈകാലിൽ ബലം ഇല്ല",
+    "ബലം പോയി",
+    "കൈകാലിൽ ബലമില്ല"
+   ]
+  },
+  {
+   "concept": "body_ache",
+   "add": [
+    "ശരീരം വേദനയാണ്",
+    "ശരീരം വേദനിക്കുന്നുണ്ട്"
+   ]
+  },
+  {
+   "concept": "chest_tightness",
+   "add": [
+    "നെഞ്ചിൽ ഒരു പിടിപ്പ്",
+    "നെഞ്ചിൽ പിടിപ്പ്"
+   ]
+  },
+  {
+   "concept": "dizziness",
+   "add": [
+    "തലകറങ്ങുന്നു"
+   ]
+  },
+  {
+   "concept": "vomiting",
+   "add": [
+    "ഛർദ്ദി വരുന്നു"
+   ]
+  },
+  {
+   "concept": "phlegm",
+   "add": [
+    "കഫം വരുന്നുണ്ട്"
+   ]
+  },
+  {
+   "concept": "heartburn",
+   "add": [
+    "നെഞ്ചിൽ കത്തുന്നു"
+   ]
+  },
+  {
+   "concept": "abdominal_pain",
+   "add": [
+    "വയറു വേദനിക്കുന്നു"
+   ]
+  },
+  {
+   "concept": "nausea",
+   "add": [
+    "ഓക്കാനം വരുന്നു"
+   ]
+  },
+  {
+   "concept": "chest_tightness",
+   "add": [
+    "നെഞ്ച് ഭാരം തോന്നുന്നു"
+   ]
+  },
+  {
+   "concept": "weakness",
+   "add": [
+    "ക്ഷീണം പോലെ തോന്നുന്നു"
+   ]
+  },
+  {
+   "concept": "fatigue",
+   "add": [
+    "exhaust",
+    "exhausting",
+    "exhaustion",
+    "worn out"
+   ]
+  },
+  {
+   "concept": "shortness_of_breath",
+   "add": [
+    "struggle to breathe",
+    "struggling to breathe",
+    "can't breathe",
+    "hard to breathe",
+    "struggle to breathe deeply"
+   ]
+  }
+ ],
+ "new_concepts": [
+  {
+   "concept": "common_cold",
+   "english": "common cold",
+   "aliases": [
+    "ജലദോഷം",
+    "ജലദോഷം ഉണ്ട്"
+   ],
+   "english_aliases": [
+    "common cold"
+   ]
+  },
+  {
+   "concept": "abdominal_burning",
+   "english": "abdominal burning",
+   "aliases": [
+    "വയറിൽ കത്തുന്നു",
+    "വയറു കത്തുന്ന പോലെ",
+    "വയറിൽ എരിച്ചിൽ",
+    "വയറിൽ കത്തുന്ന സംവേദന"
+   ]
+  },
+  {
+   "concept": "asthma",
+   "english": "asthma",
+   "aliases": [
+    "ആസ്ത്മ",
+    "ആസ്ത്മ ഉണ്ട്"
+   ],
+   "english_aliases": [
+    "asthma"
+   ]
+  },
+  {
+   "concept": "thyroid_disorder",
+   "english": "thyroid disorder",
+   "aliases": [
+    "തൈറോയ്ഡ്"
+   ],
+   "english_aliases": [
+    "thyroid"
+   ]
+  },
+  {
+   "concept": "high_cholesterol",
+   "english": "high cholesterol",
+   "aliases": [
+    "കൊളസ്ട്രോൾ",
+    "കൊലസ്ട്രോൾ"
+   ],
+   "english_aliases": [
+    "cholesterol"
+   ]
+  },
+  {
+   "concept": "ulcer",
+   "english": "ulcer",
+   "aliases": [
+    "അൾസർ"
+   ],
+   "english_aliases": [
+    "ulcer"
+   ]
+  },
+  {
+   "concept": "toothache",
+   "english": "toothache",
+   "aliases": [
+    "പല്ലുവേദന",
+    "പല്ല് വേദന"
+   ],
+   "english_aliases": [
+    "toothache",
+    "tooth pain"
+   ]
+  },
+  {
+   "concept": "ear_pain",
+   "english": "ear pain",
+   "aliases": [
+    "കാതിൽ വേദന",
+    "ചെവിയിൽ വേദന"
+   ],
+   "english_aliases": [
+    "ear pain"
+   ]
+  },
+  {
+   "concept": "back_pain",
+   "english": "back pain",
+   "aliases": [
+    "നടുവേദന",
+    "നടുവു വേദന"
+   ],
+   "english_aliases": [
+    "back pain",
+    "backache",
+    "back ache",
+    "low backache"
+   ]
+  },
+  {
+   "concept": "tablet",
+   "english": "tablet",
+   "aliases": [
+    "ടാബ്ലറ്റ്",
+    "tablet കഴിക്കുന്നു",
+    "tablet കഴിക്കും",
+    "morning tablet",
+    "night tablet"
+   ],
+   "english_aliases": [
+    "tablet",
+    "tablets"
+   ]
+  },
+  {
+   "concept": "capsule",
+   "english": "capsule",
+   "aliases": [
+    "കാപ്സ്യൂൾ"
+   ],
+   "english_aliases": [
+    "capsule"
+   ]
+  },
+  {
+   "concept": "syrup",
+   "english": "syrup",
+   "aliases": [
+    "സിറപ്പ്"
+   ],
+   "english_aliases": [
+    "syrup"
+   ]
+  },
+  {
+   "concept": "injection",
+   "english": "injection",
+   "fact_type_hint": "procedure",
+   "aliases": [
+    "കുത്തിവെപ്പ്",
+    "ഇഞ്ചക്ഷൻ"
+   ],
+   "english_aliases": [
+    "injection",
+    "shot"
+   ]
+  },
+  {
+   "concept": "medicine",
+   "english": "medicine",
+   "aliases": [
+    "മരുന്ന്",
+    "മരുന്നുകൾ"
+   ],
+   "english_aliases": [
+    "medicine",
+    "medication"
+   ]
+  },
+  {
+   "concept": "suicidal_ideation",
+   "english": "suicidal ideation",
+   "aliases": [],
+   "english_aliases": [
+    "end my life",
+    "harm myself",
+    "kill myself",
+    "suicidal",
+    "suicidal ideation",
+    "suicide"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "self_harm",
+   "english": "self-harm",
+   "aliases": [],
+   "english_aliases": [
+    "cutting myself",
+    "hurting myself",
+    "self harm",
+    "self-harm"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "depression",
+   "english": "depression",
+   "aliases": [],
+   "english_aliases": [
+    "depressed",
+    "depression",
+    "feel low",
+    "feeling down",
+    "feeling low",
+    "low mood",
+    "been low",
+    "was low",
+    "felt low",
+    "been depressed"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "anxiety",
+   "english": "anxiety",
+   "aliases": [],
+   "english_aliases": [
+    "anxiety",
+    "anxious",
+    "apprehension",
+    "nervous",
+    "on edge",
+    "worried"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "panic",
+   "english": "panic",
+   "aliases": [],
+   "english_aliases": [
+    "panic",
+    "panic attacks"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "emotional_distress",
+   "english": "emotional distress",
+   "aliases": [],
+   "english_aliases": [
+    "deeply upsetting",
+    "distress",
+    "distressing",
+    "disturbed",
+    "unsettled",
+    "unsettling",
+    "upsetting"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "discouraged_mood",
+   "english": "discouraged mood",
+   "aliases": [],
+   "english_aliases": [
+    "discouraged"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "crying_episodes",
+   "english": "crying",
+   "aliases": [],
+   "english_aliases": [
+    "cry",
+    "crying",
+    "good cry",
+    "sob",
+    "sobbing"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "loneliness",
+   "english": "loneliness",
+   "aliases": [],
+   "english_aliases": [
+    "alone",
+    "loneliness",
+    "lonely",
+    "feeling alone"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "anger",
+   "english": "anger",
+   "aliases": [],
+   "english_aliases": [
+    "anger",
+    "angry"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "fear",
+   "english": "fear",
+   "aliases": [],
+   "english_aliases": [
+    "afraid",
+    "fear",
+    "scared"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "increased_energy",
+   "english": "increased energy",
+   "aliases": [],
+   "english_aliases": [
+    "energy inside me",
+    "enthusiasm",
+    "lots of energy"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "elevated_mood",
+   "english": "elevated mood",
+   "aliases": [],
+   "english_aliases": [
+    "elevated mood",
+    "feel fantastic",
+    "feels fantastic",
+    "grandiose",
+    "mood is high"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "auditory_hallucination",
+   "english": "auditory hallucination",
+   "aliases": [],
+   "english_aliases": [
+    "hallucination",
+    "hearing voices",
+    "hears him in my ears",
+    "hears voices",
+    "voice coming through",
+    "hear him in my ears",
+    "hear voices"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "decreased_need_for_sleep",
+   "english": "decreased need for sleep",
+   "aliases": [],
+   "english_aliases": [
+    "don't need sleep",
+    "haven't had time to sleep",
+    "no need for sleep",
+    "no time to sleep"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "excessive_sleep",
+   "english": "excessive sleep",
+   "aliases": [],
+   "english_aliases": [
+    "oversleeping",
+    "sleeping all day",
+    "sleeping every day",
+    "sleeping the whole"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "insomnia",
+   "english": "insomnia",
+   "aliases": [],
+   "english_aliases": [
+    "can't sleep",
+    "not sleeping",
+    "trouble sleeping"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "appetite_change",
+   "english": "appetite change",
+   "aliases": [],
+   "english_aliases": [
+    "appetite",
+    "lost weight",
+    "no appetite",
+    "not eating",
+    "weight loss"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "feeling_unwell",
+   "english": "feeling unwell",
+   "aliases": [],
+   "english_aliases": [
+    "feeling awful",
+    "feeling off",
+    "feeling unwell",
+    "felt shitty"
+   ],
+   "note": "phase-2 behavioral health; evidence: unseen-audio transcripts / PHQ-9-GAD-7 wording; no Malayalam aliases invented"
+  },
+  {
+   "concept": "couples_counseling",
+   "english": "couples counseling",
+   "aliases": [],
+   "english_aliases": [
+    "couples counseling",
+    "couples counselling",
+    "counseling",
+    "counselling",
+    "therapy sessions"
+   ],
+   "note": "phase-2: treatment concept; evidence: unseen audio ('we started couples counseling last week'); no Malayalam invented"
+  }
+ ],
+ "family_subject_markers": {
+  "mother": [
+   "അമ്മയ്ക്ക്",
+   "അമ്മ",
+   "mother"
+  ],
+  "father": [
+   "അച്ഛന്",
+   "അച്ഛൻ",
+   "അപ്പന്",
+   "അപ്പൻ",
+   "father"
+  ],
+  "family": [
+   "വീട്ടുകാർക്ക്",
+   "കുടുംബത്തിൽ",
+   "കുടുംബാംഗങ്ങൾക്ക്",
+   "family history of"
+  ]
+ },
+ "patient_self_markers": [
+  "എനിക്ക്",
+  "എനിക്കാണ്",
+  "എന്റെ",
+  "എനിക്കായി",
+  "i have",
+  "i had"
+ ],
+ "allergens": {
+  "പെൻസിലിൻ": "penicillin",
+  "സൾഫ": "sulfa drugs",
+  "പൊടി": "dust",
+  "ഡസ്റ്റ്": "dust",
+  "പൂപ്പൽ": "mould",
+  "പെൻസിലിന്": "penicillin",
+  "penicillin": "penicillin"
+ },
+ "medications": {
+  "paracetamol": {
+   "english": "paracetamol",
+   "aliases": [
+    "പാരസെറ്റമോൾ",
+    "പാരസിറ്റമോൾ",
+    "പാര",
+    "para",
+    "paracetamol"
+   ],
+   "protected": true
+  },
+  "fluoxetine": {
+   "english": "fluoxetine",
+   "aliases": [
+    "Prozac",
+    "prozac",
+    "fluoxetine"
+   ],
+   "protected": true
+  }
+ },
+ "medication_lexicon_v1": {
+  "description": "Medication Intelligence V1 (research §K): Malayalam phonetic aliases live in data/medication_lexicon.json (Layer 2); short code-switched forms are context-gated there (§E.4). ASR corruptions of medication names belong in asr_correction.py (Layer 1) only with verified benchmark observations.",
+  "protected": true
+ },
+ "protected_phrases": [
+  "രണ്ട് പ്രാവശ്യം",
+  "ദിവസം രണ്ട് പ്രാവശ്യം",
+  "മൂന്ന് പ്രാവശ്യം",
+  "ഭക്ഷണത്തിന് ശേഷം",
+  "ഭക്ഷണത്തിന് മുമ്പ്",
+  "രാവിലെ വൈകുന്നേരം",
+  "500 mg",
+  "10 mg",
+  "500 മില്ലിഗ്രാം",
+  "ടാബ്ലറ്റ്",
+  "രണ്ട് ടാബ്ലറ്റ്"
+ ],
+ "lexicon_additions": {
+  "conditional_markers": [
+   "െങ്കിൽ",
+   "െങ്കിലും",
+   "െങ്കില്"
+  ],
+  "question_markers": [
+   "എത്രയാണ്",
+   "എത്ര"
+  ]
+ },
+ "negative_idioms": [
+  {
+   "concept": "shortness_of_breath",
+   "aliases": [
+    "ശ്വാസം കിട്ടുന്നില്ല",
+    "വായു കിട്ടുന്നില്ല",
+    "ശ്വാസം എടുക്കാൻ പറ്റുന്നില്ല",
+    "ശ്വാസംകിട്ടുന്നില്ല"
+   ]
+  }
+ ],
+ "colloquial_idioms": []
+}

@@ -1,0 +1,112 @@
+{
+  "title": "IndicConformer Malayalam ASR — GPU vs CPU device comparison",
+  "generated": "2026-09-22",
+  "scope": "Single-fixture device comparison. NOT a re-run of the frozen five-fixture quality benchmark, which remains authoritative for quality.",
+  "methodology": "Model loaded once per device, then the same fixture transcribed 3x. Timing is the asr.transcribe_malayalam() internal asr_time_seconds, the same field the frozen benchmark recorded. First run includes dataloader/numba JIT warm-up and is reported but excluded from 'best'.",
+  "conditions": {
+    "offline": true,
+    "tokenless": true,
+    "model_source": "local .nemo via MALAYALAM_ASR_MODEL_PATH",
+    "note": "Machine was under concurrent load (~0.25 GB free RAM) during these runs."
+  },
+  "model": {
+    "id": "ai4bharat/indicconformer_stt_ml_hybrid_ctc_rnnt_large",
+    "revision": "e96d81e42e5fe73f282b0322d422a48b461a4ca6",
+    "decoder": "ctc",
+    "language_id": "ml"
+  },
+  "hardware": {
+    "gpu": "NVIDIA GeForce GTX 1650",
+    "driver": "555.99",
+    "vram_total_mib": 4096,
+    "compute_capability": "7.5",
+    "cpu": "AMD Ryzen 5 5600H (6C/12T)",
+    "system_ram_gb": 5.9
+  },
+  "environments": {
+    "cpu": {
+      "venv": "C:/Users/akthe/scribe-ml-venv",
+      "torch": "2.14.0",
+      "nemo": "1.23.0rc0 (AI4Bharat fork)",
+      "numpy": "1.26.4",
+      "scipy": "1.13.1"
+    },
+    "gpu": {
+      "venv": "C:/Users/akthe/scribe-gpu-venv",
+      "torch": "2.14.0+cu126",
+      "nemo": "1.23.0rc0 (AI4Bharat fork)",
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "cuda": "12.6"
+    }
+  },
+  "results": {
+    "cpu": {
+      "device": "cpu",
+      "fixture": "ml_fever_cough.wav",
+      "audio_duration_s": 16.42,
+      "model_load_seconds": 94.51,
+      "runs": 3,
+      "asr_time_seconds_each": [
+        4.28,
+        2.29,
+        1.88
+      ],
+      "asr_time_seconds_best": 1.88,
+      "asr_time_seconds_median": 2.29,
+      "wrapper_seconds_each": [
+        4.28,
+        2.29,
+        1.88
+      ],
+      "rtf_best": 0.115,
+      "transcript_stable_across_runs": true,
+      "transcript_chars": 176,
+      "malayalam_text": "എന്ത് പ്രശ്നമാണ് ഉള്ളത് എനിക്ക് മൂന്ന് ദിവസമായി പനിയും ചുമയും ഉണ്ട്ഛർദ്ദിയോ ഉണ്ടോ തലവേദയും ഉണ്ട് ഇന്നലെ ഛർദ്ദിയും ഉണ്ടായിരുന്നു പാരസിറ്റമോൾ ടാബ്ലറ്റ് രാവിലെ വൈകുന്നേരം കഴിക്കുക",
+      "process_rss_mib": 600.4
+    },
+    "gpu": {
+      "device": "cuda",
+      "fixture": "ml_fever_cough.wav",
+      "audio_duration_s": 16.42,
+      "model_load_seconds": 68.72,
+      "runs": 3,
+      "asr_time_seconds_each": [
+        4.77,
+        0.22,
+        0.13
+      ],
+      "asr_time_seconds_best": 0.13,
+      "asr_time_seconds_median": 0.22,
+      "wrapper_seconds_each": [
+        4.77,
+        0.22,
+        0.13
+      ],
+      "rtf_best": 0.008,
+      "transcript_stable_across_runs": true,
+      "transcript_chars": 176,
+      "malayalam_text": "എന്ത് പ്രശ്നമാണ് ഉള്ളത് എനിക്ക് മൂന്ന് ദിവസമായി പനിയും ചുമയും ഉണ്ട്ഛർദ്ദിയോ ഉണ്ടോ തലവേദയും ഉണ്ട് ഇന്നലെ ഛർദ്ദിയും ഉണ്ടായിരുന്നു പാരസിറ്റമോൾ ടാബ്ലറ്റ് രാവിലെ വൈകുന്നേരം കഴിക്കുക",
+      "vram_peak_mib": 604.6,
+      "vram_reserved_mib": 644.0,
+      "process_rss_mib": 425.7
+    }
+  },
+  "comparison": {
+    "audio_duration_s": 16.42,
+    "cpu_best_s": 1.88,
+    "gpu_best_s": 0.13,
+    "speedup_best": 14.5,
+    "cpu_median_s": 2.29,
+    "gpu_median_s": 0.22,
+    "speedup_median": 10.4,
+    "cpu_rtf_best": 0.115,
+    "gpu_rtf_best": 0.008,
+    "model_load_cpu_s": 94.51,
+    "model_load_gpu_s": 68.72,
+    "vram_peak_mib": 604.6,
+    "vram_headroom_mib": 3452.0,
+    "transcripts_identical_cpu_vs_gpu": true,
+    "transcript_chars": 176
+  }
+}

@@ -1,0 +1,4 @@
+run 2026-09-23 — real audio ASR benchmark, baseline dc40e3f (frozen)
+audio: data/uploads/1701bd0281a4.m4a (md5 d5124b40358d47180f5b6dbbd20d5dd9), 33.3s
+paths: indicconformer CTC cpu offline; faster-whisper base/small/large-v3 cpu int8; deepgram unconfigured
+result: see real_audio_asr_report.md; no correction mappings added

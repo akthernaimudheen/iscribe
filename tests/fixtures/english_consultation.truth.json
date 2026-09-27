@@ -1,0 +1,113 @@
+{
+  "description": "Synthetic English doctor-patient consultation, Indian English TTS voices.",
+  "doctor_voice": "en-IN-PrabhatNeural",
+  "patient_voice": "en-IN-NeerjaNeural",
+  "language": "en",
+  "phi": false,
+  "turns": [
+    {
+      "speaker": "Doctor",
+      "text": "Good morning. Please sit down. What brings you in today?"
+    },
+    {
+      "speaker": "Patient",
+      "text": "Good morning doctor. I have been having a fever and a bad cough for the last three days."
+    },
+    {
+      "speaker": "Doctor",
+      "text": "Any headache or body pain along with that?"
+    },
+    {
+      "speaker": "Patient",
+      "text": "Yes, I have a headache, mostly in the evening. And I vomited once yesterday."
+    },
+    {
+      "speaker": "Doctor",
+      "text": "Are you taking any medication currently?"
+    },
+    {
+      "speaker": "Patient",
+      "text": "I took paracetamol twice, but the fever came back."
+    },
+    {
+      "speaker": "Doctor",
+      "text": "Do you have any known allergies?"
+    },
+    {
+      "speaker": "Patient",
+      "text": "No allergies doctor."
+    },
+    {
+      "speaker": "Doctor",
+      "text": "Any history of diabetes or high blood pressure?"
+    },
+    {
+      "speaker": "Patient",
+      "text": "My blood pressure was slightly high last year, but I am not on any tablets."
+    },
+    {
+      "speaker": "Doctor",
+      "text": "Let me check. Your temperature is one hundred and one degrees."
+    },
+    {
+      "speaker": "Patient",
+      "text": "Is it serious doctor?"
+    },
+    {
+      "speaker": "Doctor",
+      "text": "It looks like a viral infection. I will start you on paracetamol five hundred milligrams, twice a day after food, for five days."
+    },
+    {
+      "speaker": "Patient",
+      "text": "Should I take anything for the cough?"
+    },
+    {
+      "speaker": "Doctor",
+      "text": "Yes, take cetirizine ten milligrams at night. Drink plenty of fluids and come back in one week if the fever does not settle."
+    },
+    {
+      "speaker": "Patient",
+      "text": "Thank you doctor."
+    }
+  ],
+  "full_text": "Good morning. Please sit down. What brings you in today? Good morning doctor. I have been having a fever and a bad cough for the last three days. Any headache or body pain along with that? Yes, I have a headache, mostly in the evening. And I vomited once yesterday. Are you taking any medication currently? I took paracetamol twice, but the fever came back. Do you have any known allergies? No allergies doctor. Any history of diabetes or high blood pressure? My blood pressure was slightly high last year, but I am not on any tablets. Let me check. Your temperature is one hundred and one degrees. Is it serious doctor? It looks like a viral infection. I will start you on paracetamol five hundred milligrams, twice a day after food, for five days. Should I take anything for the cough? Yes, take cetirizine ten milligrams at night. Drink plenty of fluids and come back in one week if the fever does not settle. Thank you doctor.",
+  "must_contain": [
+    "fever",
+    "cough",
+    "three days",
+    "headache",
+    "vomited",
+    "paracetamol",
+    "allergies",
+    "blood pressure",
+    "viral"
+  ],
+  "must_contain_any": [
+    [
+      "cetirizine"
+    ],
+    [
+      "five hundred",
+      "500"
+    ],
+    [
+      "ten milligrams",
+      "10 mg",
+      "10mg"
+    ],
+    [
+      "five days",
+      "5 days"
+    ],
+    [
+      "one week",
+      "1 week"
+    ],
+    [
+      "twice a day",
+      "twice daily",
+      "two times a day"
+    ]
+  ],
+  "note": "must_contain_any groups accept equivalent renderings (spoken vs smart-formatted numerals). A miss there is a real transcription error, not a formatting difference."
+}

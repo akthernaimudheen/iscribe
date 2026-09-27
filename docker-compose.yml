@@ -1,0 +1,40 @@
+# iScribe — private single-host deployment.
+#
+#   docker compose up -d --build
+#
+# Secrets come from .env (see .env.example); nothing sensitive lives in this
+# file. The container binds to localhost only: put a TLS terminator in front of
+# it (Cloudflare Tunnel, or a reverse proxy on the hospital network) rather than
+# exposing the port directly.
+
+services:
+  iscribe:
+    build:
+      context: .
+      args:
+        WHISPER_MODEL: ${ISCRIBE_WHISPER_MODEL:-base}
+    image: iscribe:1.0.0
+    container_name: iscribe
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8123:8123"
+    environment:
+      ISCRIBE_ENV: production
+      ISCRIBE_ACCESS_TOKEN: ${ISCRIBE_ACCESS_TOKEN:?set ISCRIBE_ACCESS_TOKEN in .env}
+      ISCRIBE_MAX_UPLOAD_MB: ${ISCRIBE_MAX_UPLOAD_MB:-100}
+      ISCRIBE_AUDIO_RETENTION_HOURS: ${ISCRIBE_AUDIO_RETENTION_HOURS:-24}
+      ISCRIBE_MAX_CONCURRENT_JOBS: ${ISCRIBE_MAX_CONCURRENT_JOBS:-1}
+      ISCRIBE_WHISPER_MODEL: ${ISCRIBE_WHISPER_MODEL:-base}
+      ISCRIBE_LOG_LEVEL: ${ISCRIBE_LOG_LEVEL:-INFO}
+      # Cloudflare Tunnel terminates TLS, so the cookie stays Secure.
+      ISCRIBE_COOKIE_SECURE: ${ISCRIBE_COOKIE_SECURE:-true}
+    volumes:
+      # Consultation database, uploaded audio and logs. Back this up.
+      - iscribe-data:/data
+    # Whisper is memory-hungry relative to a small trial host; cap it so the
+    # container cannot take the machine down.
+    mem_limit: 3g
+    cpus: 4.0
+
+volumes:
+  iscribe-data:

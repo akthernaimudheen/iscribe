@@ -1,0 +1,723 @@
+{
+  "version": "1.0.0",
+  "description": "Indian/Kerala medication vocabulary. Generic→brand→alias mappings. Every entry has provenance.",
+  "notes": [
+    "brand_aliases entries are matched with token-boundary regex, not fuzzy matching.",
+    "context_required: true means the alias only matches when a dose, form, or frequency token is also present in the clause.",
+    "phonetic_aliases are correct Malayalam phonological representations. They are NOT ASR errors.",
+    "asr_variants belong in asr_correction.py, not here.",
+    "confidence: provenance quality score — only items >= 0.90 are included.",
+    "manufacturers and evidence levels (A: NLEM 2022 + CDSCO; B: CIMS India + major AIOCD share) are preserved from the research tables and never invented.",
+    "SPECULATIVE short forms (amlo, met, rosu, escitalopram shorts) are deliberately absent."
+  ],
+  "medications": [
+    {"id": "paracetamol", "english": "paracetamol", "therapeutic_class": "analgesic/antipyretic", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "dolo", "context_required": false, "confidence": 0.99, "manufacturer": "Micro Labs Ltd.", "evidence_level": "A+B", "source": "Micro Labs / CIMS India"},
+       {"surface": "dolo 650", "context_required": false, "confidence": 0.99, "manufacturer": "Micro Labs Ltd.", "evidence_level": "A+B"},
+       {"surface": "calpol", "context_required": false, "confidence": 0.99, "manufacturer": "Haleon (GSK)", "evidence_level": "A+B"},
+       {"surface": "crocin", "context_required": false, "confidence": 0.98, "manufacturer": "Haleon (GSK)", "evidence_level": "A+B"},
+       {"surface": "p 500", "context_required": true, "confidence": 0.90, "manufacturer": "Various Indian generics", "evidence_level": "B"}
+     ],
+     "english_aliases": ["acetaminophen"],
+     "phonetic_aliases": [],
+     "context_required_aliases": []},
+
+    {"id": "ibuprofen", "english": "ibuprofen", "therapeutic_class": "nsaid", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "aceclofenac", "english": "aceclofenac", "therapeutic_class": "nsaid", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "zerodol", "context_required": false, "confidence": 0.99, "manufacturer": "Ipca", "evidence_level": "B"},
+       {"surface": "hifenac", "context_required": false, "confidence": 0.99, "manufacturer": "Sun Pharma", "evidence_level": "B"},
+       {"surface": "zerodol p", "context_required": false, "confidence": 0.99, "manufacturer": "Ipca", "evidence_level": "B", "combo": "aceclofenac+paracetamol"},
+       {"surface": "hifenac p", "context_required": false, "confidence": 0.99, "manufacturer": "Sun Pharma", "evidence_level": "B", "combo": "aceclofenac+paracetamol"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "diclofenac", "english": "diclofenac", "therapeutic_class": "nsaid", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "mefenamic_acid", "english": "mefenamic acid", "therapeutic_class": "nsaid", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": ["meftal spas", "meftal"], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "etoricoxib", "english": "etoricoxib", "therapeutic_class": "cox2_inhibitor", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "naproxen", "english": "naproxen", "therapeutic_class": "nsaid", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "tramadol", "english": "tramadol", "therapeutic_class": "opioid_analgesic", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "aspirin", "english": "aspirin", "therapeutic_class": "antiplatelet/analgesic", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "ecosprin", "context_required": false, "confidence": 0.99, "manufacturer": "USV Pvt Ltd.", "evidence_level": "A+B"},
+       {"surface": "ecosprin 75", "context_required": false, "confidence": 0.99, "manufacturer": "USV Pvt Ltd.", "evidence_level": "A+B", "implies_dose": "75 mg"},
+       {"surface": "ecosprin 150", "context_required": false, "confidence": 0.97, "manufacturer": "USV Pvt Ltd.", "evidence_level": "B", "implies_dose": "150 mg"},
+       {"surface": "av 75", "context_required": true, "confidence": 0.92, "manufacturer": "USV", "evidence_level": "B", "implies_dose": "75 mg"}
+     ],
+     "english_aliases": ["acetylsalicylic acid"], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "pantoprazole", "english": "pantoprazole", "therapeutic_class": "ppi", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "pan 40", "context_required": false, "confidence": 0.99, "manufacturer": "Alkem Laboratories", "evidence_level": "B", "implies_dose": "40 mg"},
+       {"surface": "pan-d", "context_required": false, "confidence": 0.99, "manufacturer": "Alkem Laboratories", "evidence_level": "B", "combo": "pantoprazole+domperidone"},
+       {"surface": "pan d", "context_required": false, "confidence": 0.99, "manufacturer": "Alkem Laboratories", "evidence_level": "B", "combo": "pantoprazole+domperidone"},
+       {"surface": "pan-dsr", "context_required": false, "confidence": 0.97, "manufacturer": "Alkem Laboratories", "evidence_level": "B", "combo": "pantoprazole+domperidone"},
+       {"surface": "pantop-d", "context_required": false, "confidence": 0.97, "manufacturer": "Aristo", "evidence_level": "B", "combo": "pantoprazole+domperidone"}
+     ],
+     "english_aliases": ["pan forty"],
+     "phonetic_aliases": [{"surface": "പാന്റോപ്രസോൾ", "script": "ml", "evidence": "PHONETIC", "confidence": 0.90, "note": "Malayalam phonology: loanword rendered with retroflex ടോ and long ആ/ഓ vowels"}],
+     "context_required_aliases": [
+       {"surface": "pan", "context_required": true, "confidence": 0.90, "note": "'pan' alone is a common word; requires dose/form/frequency qualifier (FP-6)"}
+     ]},
+
+    {"id": "omeprazole", "english": "omeprazole", "therapeutic_class": "ppi", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "omez", "context_required": false, "confidence": 0.96, "manufacturer": "Dr Reddy's", "evidence_level": "B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "rabeprazole", "english": "rabeprazole", "therapeutic_class": "ppi", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "razo", "context_required": true, "confidence": 0.97, "manufacturer": "Dr Reddy's", "evidence_level": "B"},
+       {"surface": "razo-d", "context_required": false, "confidence": 0.97, "manufacturer": "Dr Reddy's", "evidence_level": "B", "combo": "rabeprazole+domperidone"},
+       {"surface": "razo d", "context_required": false, "confidence": 0.97, "manufacturer": "Dr Reddy's", "evidence_level": "B", "combo": "rabeprazole+domperidone"},
+       {"surface": "rablet", "context_required": false, "confidence": 0.95, "manufacturer": "Lupin", "evidence_level": "B"},
+       {"surface": "rablet-d", "context_required": false, "confidence": 0.95, "manufacturer": "Lupin", "evidence_level": "B", "combo": "rabeprazole+domperidone"},
+       {"surface": "veloz", "context_required": false, "confidence": 0.94, "manufacturer": "Dr Reddy's / USV", "evidence_level": "B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "esomeprazole", "english": "esomeprazole", "therapeutic_class": "ppi", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "lansoprazole", "english": "lansoprazole", "therapeutic_class": "ppi", "route_default": "oral", "priority": "P2", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "domperidone", "english": "domperidone", "therapeutic_class": "prokinetic", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "domstal", "context_required": false, "confidence": 0.96, "manufacturer": "Torrent", "evidence_level": "B"},
+       {"surface": "dompil", "context_required": false, "confidence": 0.93, "manufacturer": "FDC", "evidence_level": "B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "ondansetron", "english": "ondansetron", "therapeutic_class": "antiemetic", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "emset", "context_required": false, "confidence": 0.98, "manufacturer": "Cipla", "evidence_level": "B"},
+       {"surface": "vomikind", "context_required": false, "confidence": 0.96, "manufacturer": "Mankind", "evidence_level": "B"},
+       {"surface": "ondem", "context_required": false, "confidence": 0.95, "manufacturer": "Cipla", "evidence_level": "B"}
+     ],
+     "english_aliases": ["emset four"], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "metoclopramide", "english": "metoclopramide", "therapeutic_class": "antiemetic/prokinetic", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "sucralfate", "english": "sucralfate", "therapeutic_class": "mucosal_protectant", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "lactulose", "english": "lactulose", "therapeutic_class": "laxative", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "ranitidine", "english": "ranitidine", "therapeutic_class": "h2_blocker", "route_default": "oral", "priority": "P2", "source": "WHO INN; CIMS India", "confidence": 0.90, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "metformin", "english": "metformin", "therapeutic_class": "biguanide", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "glycomet", "context_required": false, "confidence": 0.99, "manufacturer": "USV Pvt Ltd.", "evidence_level": "A+B"},
+       {"surface": "glycomet sr", "context_required": false, "confidence": 0.99, "manufacturer": "USV Pvt Ltd.", "evidence_level": "A+B"},
+       {"surface": "glycomet-sr", "context_required": false, "confidence": 0.99, "manufacturer": "USV Pvt Ltd.", "evidence_level": "A+B"},
+       {"surface": "glycomet sr 500", "context_required": false, "confidence": 0.99, "manufacturer": "USV Pvt Ltd.", "evidence_level": "A+B", "implies_dose": "500 mg"},
+       {"surface": "glycomet 500", "context_required": false, "confidence": 0.98, "manufacturer": "USV Pvt Ltd.", "evidence_level": "A+B", "implies_dose": "500 mg"},
+       {"surface": "glucophage", "context_required": false, "confidence": 0.95, "manufacturer": "Merck India", "evidence_level": "A+B"},
+       {"surface": "glucoryl m", "context_required": false, "confidence": 0.94, "manufacturer": "Sanofi India", "evidence_level": "B", "combo": "metformin+glimepiride"},
+       {"surface": "amaryl m", "context_required": false, "confidence": 0.96, "manufacturer": "Sanofi India", "evidence_level": "B", "combo": "metformin+glimepiride"},
+       {"surface": "volix met", "context_required": false, "confidence": 0.93, "manufacturer": "Intas Pharmaceuticals", "evidence_level": "B", "combo": "metformin+voglibose"},
+       {"surface": "tendia m", "context_required": false, "confidence": 0.94, "manufacturer": "Glenmark", "evidence_level": "B", "combo": "metformin+teneligliptin"},
+       {"surface": "zita met", "context_required": false, "confidence": 0.94, "manufacturer": "Zydus", "evidence_level": "B", "combo": "metformin+teneligliptin"}
+     ],
+     "english_aliases": ["metformin hcl", "metformin hydrochloride"],
+     "phonetic_aliases": [
+       {"surface": "മെറ്റ്ഫോർമിൻ", "script": "ml", "evidence": "PHONETIC", "confidence": 0.90, "note": "Malayalam phonology: geminated റ്റ് cluster + long ഓ"},
+       {"surface": "മെറ്റ്ഫോമിൻ", "script": "ml", "evidence": "PHONETIC", "confidence": 0.85, "note": "r-vowel elision variant"}
+     ],
+     "context_required_aliases": []},
+
+    {"id": "glimepiride", "english": "glimepiride", "therapeutic_class": "sulfonylurea", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "amaryl", "context_required": false, "confidence": 0.97, "manufacturer": "Sanofi India", "evidence_level": "B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "gliclazide", "english": "gliclazide", "therapeutic_class": "sulfonylurea", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "glipizide", "english": "glipizide", "therapeutic_class": "sulfonylurea", "route_default": "oral", "priority": "P2", "source": "WHO INN; CIMS India", "confidence": 0.93, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "voglibose", "english": "voglibose", "therapeutic_class": "alpha_glucosidase_inhibitor", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "volix", "context_required": false, "confidence": 0.94, "manufacturer": "Intas Pharmaceuticals", "evidence_level": "B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "teneligliptin", "english": "teneligliptin", "therapeutic_class": "dpp4_inhibitor", "route_default": "oral", "priority": "P0", "source": "WHO INN; CIMS India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "vildagliptin", "english": "vildagliptin", "therapeutic_class": "dpp4_inhibitor", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "sitagliptin", "english": "sitagliptin", "therapeutic_class": "dpp4_inhibitor", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "linagliptin", "english": "linagliptin", "therapeutic_class": "dpp4_inhibitor", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "dapagliflozin", "english": "dapagliflozin", "therapeutic_class": "sglt2_inhibitor", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "empagliflozin", "english": "empagliflozin", "therapeutic_class": "sglt2_inhibitor", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "canagliflozin", "english": "canagliflozin", "therapeutic_class": "sglt2_inhibitor", "route_default": "oral", "priority": "P2", "source": "WHO INN; CIMS India", "confidence": 0.93, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "pioglitazone", "english": "pioglitazone", "therapeutic_class": "thiazolidinedione", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "insulin", "english": "insulin", "therapeutic_class": "insulin_class", "route_default": "injectable", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "insulin_glargine", "english": "insulin glargine", "therapeutic_class": "long_acting_insulin", "route_default": "injectable", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": ["glargine"], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "insulin_degludec", "english": "insulin degludec", "therapeutic_class": "ultra_long_acting_insulin", "route_default": "injectable", "priority": "P2", "source": "WHO INN; CIMS India", "confidence": 0.92, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": ["degludec"], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "human_mixtard", "english": "human mixtard", "therapeutic_class": "premixed_insulin", "route_default": "injectable", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": ["mixtard"], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "amlodipine", "english": "amlodipine", "therapeutic_class": "calcium_channel_blocker", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "amlong", "context_required": false, "confidence": 0.99, "manufacturer": "Micro Labs", "evidence_level": "B"},
+       {"surface": "stamlo", "context_required": false, "confidence": 0.99, "manufacturer": "Dr Reddy's", "evidence_level": "B"},
+       {"surface": "telma am", "context_required": false, "confidence": 0.98, "manufacturer": "Glenmark", "evidence_level": "B", "combo": "telmisartan+amlodipine"},
+       {"surface": "telma-am", "context_required": false, "confidence": 0.98, "manufacturer": "Glenmark", "evidence_level": "B", "combo": "telmisartan+amlodipine"},
+       {"surface": "telakem am", "context_required": false, "confidence": 0.95, "manufacturer": "Lupin", "evidence_level": "B", "combo": "telmisartan+amlodipine"}
+     ],
+     "english_aliases": ["amlong five"],
+     "phonetic_aliases": [{"surface": "ആംലോഡിപിൻ", "script": "ml", "evidence": "PHONETIC", "confidence": 0.90, "note": "Malayalam phonology: initial ആം geminate + ഡി pi sound"}],
+     "context_required_aliases": []},
+
+    {"id": "cilnidipine", "english": "cilnidipine", "therapeutic_class": "nl_type_ccb", "route_default": "oral", "priority": "P0", "source": "WHO INN; CIMS India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "cilacar", "context_required": false, "confidence": 0.98, "manufacturer": "JB Chemicals", "evidence_level": "B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "telmisartan", "english": "telmisartan", "therapeutic_class": "arb", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "telma", "context_required": true, "confidence": 0.99, "manufacturer": "Glenmark", "evidence_level": "B"},
+       {"surface": "telma 40", "context_required": false, "confidence": 0.99, "manufacturer": "Glenmark", "evidence_level": "B", "implies_dose": "40 mg"},
+       {"surface": "telmikind", "context_required": false, "confidence": 0.97, "manufacturer": "Mankind", "evidence_level": "B"},
+       {"surface": "telma ct", "context_required": false, "confidence": 0.96, "manufacturer": "Glenmark", "evidence_level": "B", "combo": "telmisartan+chlorthalidone"},
+       {"surface": "telma-ct", "context_required": false, "confidence": 0.96, "manufacturer": "Glenmark", "evidence_level": "B", "combo": "telmisartan+chlorthalidone"}
+     ],
+     "english_aliases": ["telma forty"],
+     "phonetic_aliases": [{"surface": "ടെൽമിസാർട്ടൻ", "script": "ml", "evidence": "PHONETIC", "confidence": 0.90, "note": "Malayalam phonology: dental ട്ടൻ ending, long ആ"}],
+     "context_required_aliases": [
+       {"surface": "ടെൽമ", "script": "ml", "evidence": "COMMON_USAGE", "confidence": 0.92, "note": "short brand form; tied to Telma brand; context-gated (FP-1)"}
+     ]},
+
+    {"id": "losartan", "english": "losartan", "therapeutic_class": "arb", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "olmesartan", "english": "olmesartan", "therapeutic_class": "arb", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "valsartan", "english": "valsartan", "therapeutic_class": "arb", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "ramipril", "english": "ramipril", "therapeutic_class": "ace_inhibitor", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "enalapril", "english": "enalapril", "therapeutic_class": "ace_inhibitor", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "metoprolol", "english": "metoprolol", "therapeutic_class": "beta1_blocker", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "atenolol", "english": "atenolol", "therapeutic_class": "beta1_blocker", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "bisoprolol", "english": "bisoprolol", "therapeutic_class": "beta1_blocker", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "carvedilol", "english": "carvedilol", "therapeutic_class": "beta_blocker_alpha", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "nebivolol", "english": "nebivolol", "therapeutic_class": "beta1_blocker", "route_default": "oral", "priority": "P2", "source": "WHO INN; CIMS India", "confidence": 0.92, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "atorvastatin", "english": "atorvastatin", "therapeutic_class": "statin", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "atorva", "context_required": true, "confidence": 0.99, "manufacturer": "Zydus", "evidence_level": "A+B"},
+       {"surface": "storvas", "context_required": false, "confidence": 0.96, "manufacturer": "Sun Pharma", "evidence_level": "A+B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "rosuvastatin", "english": "rosuvastatin", "therapeutic_class": "statin", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "rosuvas", "context_required": false, "confidence": 0.98, "manufacturer": "Sun Pharma", "evidence_level": "B"},
+       {"surface": "rozavel", "context_required": false, "confidence": 0.95, "manufacturer": "RPG Life", "evidence_level": "B"},
+       {"surface": "rosu", "context_required": true, "confidence": 0.94, "manufacturer": "Sun Pharma", "evidence_level": "B", "note": "'Rosu' matches only with a dose: Rosu 20, Rosu 10 mg (E.4)"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "fenofibrate", "english": "fenofibrate", "therapeutic_class": "fibrate", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "clopidogrel", "english": "clopidogrel", "therapeutic_class": "antiplatelet", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "clopilet", "context_required": false, "confidence": 0.97, "manufacturer": "Sun Pharma", "evidence_level": "B"},
+       {"surface": "deplatt", "context_required": false, "confidence": 0.96, "manufacturer": "Torrent", "evidence_level": "B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "chlorthalidone", "english": "chlorthalidone", "therapeutic_class": "thiazide_like_diuretic", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "hydrochlorothiazide", "english": "hydrochlorothiazide", "therapeutic_class": "thiazide_diuretic", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "furosemide", "english": "furosemide", "therapeutic_class": "loop_diuretic", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "lasix", "context_required": false, "confidence": 0.95, "manufacturer": "Sanofi India", "evidence_level": "B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "spironolactone", "english": "spironolactone", "therapeutic_class": "potassium_sparing_diuretic", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "isosorbide_mononitrate", "english": "isosorbide mononitrate", "therapeutic_class": "nitrate", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "salbutamol", "english": "salbutamol", "therapeutic_class": "saba", "route_default": "inhalational", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": ["albuterol"], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "levosalbutamol", "english": "levosalbutamol", "therapeutic_class": "saba", "route_default": "inhalational", "priority": "P0", "source": "WHO INN; CIMS India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "levolin", "context_required": false, "confidence": 0.98, "manufacturer": "Cipla", "evidence_level": "B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "budesonide", "english": "budesonide", "therapeutic_class": "ics", "route_default": "inhalational", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "foracort", "context_required": false, "confidence": 0.98, "manufacturer": "Cipla", "evidence_level": "B", "combo": "budesonide+formoterol"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "formoterol", "english": "formoterol", "therapeutic_class": "laba", "route_default": "inhalational", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "fluticasone", "english": "fluticasone", "therapeutic_class": "ics", "route_default": "inhalational", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "tiotropium", "english": "tiotropium", "therapeutic_class": "lama", "route_default": "inhalational", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "ipratropium", "english": "ipratropium", "therapeutic_class": "sama", "route_default": "inhalational", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "montelukast", "english": "montelukast", "therapeutic_class": "ltra", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "montair", "context_required": false, "confidence": 0.99, "manufacturer": "Cipla", "evidence_level": "B"},
+       {"surface": "montair lc", "context_required": false, "confidence": 0.99, "manufacturer": "Cipla", "evidence_level": "B", "combo": "montelukast+levocetirizine"},
+       {"surface": "montair-lc", "context_required": false, "confidence": 0.99, "manufacturer": "Cipla", "evidence_level": "B", "combo": "montelukast+levocetirizine"},
+       {"surface": "telekast l", "context_required": false, "confidence": 0.95, "manufacturer": "Lupin", "evidence_level": "B", "combo": "montelukast+levocetirizine"}
+     ],
+     "english_aliases": [],
+     "phonetic_aliases": [{"surface": "മോണ്ടെലൂകാസ്റ്റ്", "script": "ml", "evidence": "PHONETIC", "confidence": 0.90, "note": "Malayalam phonology: റ്റ് cluster + long ആ"}],
+     "context_required_aliases": []},
+
+    {"id": "cetirizine", "english": "cetirizine", "therapeutic_class": "antihistamine", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "zyrtec", "context_required": false, "confidence": 0.95, "manufacturer": "GSK/Haleon", "evidence_level": "B"},
+       {"surface": "zytech", "context_required": false, "confidence": 0.92, "manufacturer": "Various", "evidence_level": "B"}
+     ],
+     "english_aliases": ["cetzine"],
+     "phonetic_aliases": [{"surface": "സെട്രിസിൻ", "script": "ml", "evidence": "PHONETIC", "confidence": 0.90, "note": "Malayalam phonology: initial i-drop (ce→സെ)"}],
+     "context_required_aliases": []},
+
+    {"id": "levocetirizine", "english": "levocetirizine", "therapeutic_class": "antihistamine", "route_default": "oral", "priority": "P0", "source": "WHO INN; CIMS India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "telekast l", "context_required": false, "confidence": 0.95, "manufacturer": "Lupin", "evidence_level": "B", "combo": "montelukast+levocetirizine"}
+     ],
+     "english_aliases": [],
+     "phonetic_aliases": [{"surface": "ലെവോസെട്രിസിൻ", "script": "ml", "evidence": "PHONETIC", "confidence": 0.90, "note": "levo- prefix + cetirizine phonology"}],
+     "context_required_aliases": []},
+
+    {"id": "fexofenadine", "english": "fexofenadine", "therapeutic_class": "antihistamine", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "bilastine", "english": "bilastine", "therapeutic_class": "antihistamine", "route_default": "oral", "priority": "P2", "source": "WHO INN; CIMS India", "confidence": 0.92, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "doxofylline", "english": "doxofylline", "therapeutic_class": "methylxanthine", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "theophylline", "english": "theophylline", "therapeutic_class": "methylxanthine", "route_default": "oral", "priority": "P2", "source": "WHO INN; CIMS India", "confidence": 0.93, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "amoxicillin", "english": "amoxicillin", "therapeutic_class": "aminopenicillin", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "mox", "context_required": true, "confidence": 0.93, "manufacturer": "Cipla", "evidence_level": "B"},
+       {"surface": "moxikind cv", "context_required": false, "confidence": 0.94, "manufacturer": "Mankind", "evidence_level": "B", "combo": "amoxicillin_clavulanate"}
+     ],
+     "english_aliases": [],
+     "phonetic_aliases": [{"surface": "അമോക്സിസില്ലിൻ", "script": "ml", "evidence": "PHONETIC", "confidence": 0.90, "note": "Malayalam phonology: geminated ക്സി + ല്ലിൻ"}],
+     "context_required_aliases": []},
+
+    {"id": "amoxicillin_clavulanate", "english": "amoxicillin/clavulanate", "therapeutic_class": "beta_lactam_bli", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "augmentin", "context_required": false, "confidence": 0.99, "manufacturer": "GSK", "evidence_level": "A+B"},
+       {"surface": "clavam", "context_required": false, "confidence": 0.95, "manufacturer": "Alembic", "evidence_level": "B"}
+     ],
+     "english_aliases": ["amoxicillin clavulanate", "amoxicillin and clavulanate", "co-amoxiclav", "amoxiclav", "co amoxiclav"],
+     "phonetic_aliases": [{"surface": "ഓഗ്മെന്റിൻ", "script": "ml", "evidence": "COMMON_USAGE", "confidence": 0.92, "note": "brand Augmentin phonetic: ഔ→ഓ prefix, geminated ന്റ്"}],
+     "context_required_aliases": []},
+
+    {"id": "azithromycin", "english": "azithromycin", "therapeutic_class": "macrolide", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "azee", "context_required": true, "confidence": 0.99, "manufacturer": "Cipla", "evidence_level": "B", "note": "brand short-form ≤4 chars: requires dose/freq context (E.4)"},
+       {"surface": "azithral", "context_required": false, "confidence": 0.99, "manufacturer": "Alembic", "evidence_level": "B"}
+     ],
+     "english_aliases": [],
+     "phonetic_aliases": [{"surface": "അസിത്രോമൈസിൻ", "script": "ml", "evidence": "PHONETIC", "confidence": 0.90, "note": "Malayalam phonology: th→ത്ര, z→സ, mycin→മൈസിൻ"}],
+     "context_required_aliases": [
+       {"surface": "അസിത്രോ", "script": "ml", "evidence": "COMMON_USAGE", "confidence": 0.92, "note": "short form; only with dose context (E.3)"}
+     ]},
+
+    {"id": "clarithromycin", "english": "clarithromycin", "therapeutic_class": "macrolide", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "doxycycline", "english": "doxycycline", "therapeutic_class": "tetracycline", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "cefixime", "english": "cefixime", "therapeutic_class": "cephalosporin_3rd", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "zifi", "context_required": true, "confidence": 0.98, "manufacturer": "FDC", "evidence_level": "B", "note": "brand short-form ≤4 chars: requires dose/freq context (E.4)"},
+       {"surface": "taxim o", "context_required": false, "confidence": 0.97, "manufacturer": "Alkem", "evidence_level": "B"},
+       {"surface": "cefix", "context_required": false, "confidence": 0.94, "manufacturer": "Cipla", "evidence_level": "B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "cefuroxime", "english": "cefuroxime", "therapeutic_class": "cephalosporin_2nd", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "cefpodoxime", "english": "cefpodoxime", "therapeutic_class": "cephalosporin_3rd", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "ciprofloxacin", "english": "ciprofloxacin", "therapeutic_class": "fluoroquinolone", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "levofloxacin", "english": "levofloxacin", "therapeutic_class": "fluoroquinolone", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "metronidazole", "english": "metronidazole", "therapeutic_class": "nitroimidazole", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "ornidazole", "english": "ornidazole", "therapeutic_class": "nitroimidazole", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "nitrofurantoin", "english": "nitrofurantoin", "therapeutic_class": "urinary_antiseptic", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "co_trimoxazole", "english": "co-trimoxazole", "therapeutic_class": "sulfonamide_trimethoprim", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": ["cotrimoxazole", "trimethoprim sulfamethoxazole"], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "escitalopram", "english": "escitalopram", "therapeutic_class": "ssri", "route_default": "oral", "priority": "P0", "source": "WHO INN; CIMS India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "nexito", "context_required": false, "confidence": 0.97, "manufacturer": "Sun Pharma", "evidence_level": "B"},
+       {"surface": "stalopam", "context_required": false, "confidence": 0.94, "manufacturer": "Lupin", "evidence_level": "B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "sertraline", "english": "sertraline", "therapeutic_class": "ssri", "route_default": "oral", "priority": "P0", "source": "WHO INN; CIMS India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "fluoxetine", "english": "fluoxetine", "therapeutic_class": "ssri", "route_default": "oral", "priority": "P0", "source": "WHO INN; CIMS India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "prozac", "context_required": false, "confidence": 0.97, "manufacturer": "Eli Lilly", "evidence_level": "B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "paroxetine", "english": "paroxetine", "therapeutic_class": "ssri", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "duloxetine", "english": "duloxetine", "therapeutic_class": "snri", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "venlafaxine", "english": "venlafaxine", "therapeutic_class": "snri", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "amitriptyline", "english": "amitriptyline", "therapeutic_class": "tca", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "clonazepam", "english": "clonazepam", "therapeutic_class": "benzodiazepine", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "clonaz", "context_required": true, "confidence": 0.96, "manufacturer": "Sun Pharma", "evidence_level": "B"},
+       {"surface": "rivotril", "context_required": false, "confidence": 0.94, "manufacturer": "Roche", "evidence_level": "B"}
+     ],
+     "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "alprazolam", "english": "alprazolam", "therapeutic_class": "benzodiazepine", "route_default": "oral", "priority": "P0", "source": "WHO INN; CIMS India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "lorazepam", "english": "lorazepam", "therapeutic_class": "benzodiazepine", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "diazepam", "english": "diazepam", "therapeutic_class": "benzodiazepine", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "olanzapine", "english": "olanzapine", "therapeutic_class": "atypical_antipsychotic", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "quetiapine", "english": "quetiapine", "therapeutic_class": "atypical_antipsychotic", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "risperidone", "english": "risperidone", "therapeutic_class": "atypical_antipsychotic", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "aripiprazole", "english": "aripiprazole", "therapeutic_class": "atypical_antipsychotic", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "sodium_valproate", "english": "sodium valproate", "therapeutic_class": "mood_stabilizer_anticonvulsant", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": ["valproate"], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "valproic_acid", "english": "valproic acid", "therapeutic_class": "anticonvulsant", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "levetiracetam", "english": "levetiracetam", "therapeutic_class": "anticonvulsant", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "carbamazepine", "english": "carbamazepine", "therapeutic_class": "anticonvulsant", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "lamotrigine", "english": "lamotrigine", "therapeutic_class": "anticonvulsant_mood_stabilizer", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "phenytoin", "english": "phenytoin", "therapeutic_class": "anticonvulsant", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "pregabalin", "english": "pregabalin", "therapeutic_class": "anticonvulsant_neuropathic", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "gabapentin", "english": "gabapentin", "therapeutic_class": "anticonvulsant_neuropathic", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "levothyroxine", "english": "levothyroxine", "therapeutic_class": "thyroid_hormone", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "thyronorm", "context_required": false, "confidence": 0.99, "manufacturer": "Abbott India", "evidence_level": "B"},
+       {"surface": "eltroxin", "context_required": false, "confidence": 0.97, "manufacturer": "GSK", "evidence_level": "B"}
+     ],
+     "english_aliases": ["thyroxine"],
+     "phonetic_aliases": [{"surface": "ലെവോതൈറോക്സിൻ", "script": "ml", "evidence": "PHONETIC", "confidence": 0.90, "note": "levo- prefix + thyroxine phonology (തൈറോക്സിൻ)"}],
+     "context_required_aliases": []},
+
+    {"id": "carbimazole", "english": "carbimazole", "therapeutic_class": "antithyroid", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "propylthiouracil", "english": "propylthiouracil", "therapeutic_class": "antithyroid", "route_default": "oral", "priority": "P2", "source": "WHO INN; CIMS India", "confidence": 0.92, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "cholecalciferol", "english": "cholecalciferol", "therapeutic_class": "vitamin_d", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "calcirol", "context_required": false, "confidence": 0.98, "manufacturer": "Cadila", "evidence_level": "B"},
+       {"surface": "uprise d3", "context_required": false, "confidence": 0.94, "manufacturer": "Alkem", "evidence_level": "B"},
+       {"surface": "shelcal", "context_required": false, "confidence": 0.96, "manufacturer": "Alkem / Torrent", "evidence_level": "B", "combo": "calcium_carbonate+cholecalciferol"}
+     ],
+     "english_aliases": ["vitamin d3", "vitamin d", "sixty k d3", "60000 iu"],
+     "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "methylcobalamin", "english": "methylcobalamin", "therapeutic_class": "vitamin_b12", "route_default": "oral", "priority": "P0", "source": "WHO INN; CIMS India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "nervup", "context_required": false, "confidence": 0.95, "manufacturer": "Dr Reddy's", "evidence_level": "B"},
+       {"surface": "nurokind", "context_required": false, "confidence": 0.95, "manufacturer": "Alkem", "evidence_level": "B"},
+       {"surface": "cobadex", "context_required": false, "confidence": 0.93, "manufacturer": "Zydus", "evidence_level": "B"}
+     ],
+     "english_aliases": ["vitamin b12", "b12"], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "folic_acid", "english": "folic acid", "therapeutic_class": "vitamin_b9", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.99, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": ["folate"],
+     "phonetic_aliases": [{"surface": "ഫോളിക് ആസിഡ്", "script": "ml", "evidence": "PHONETIC", "confidence": 0.92, "note": "direct phonetic rendering; antenatal use"}],
+     "context_required_aliases": []},
+
+    {"id": "ferrous_sulfate", "english": "ferrous sulfate", "therapeutic_class": "iron_supplement", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": ["ferrous ascorbate", "ferrous fumarate", "iron supplement", "iron tablet", "iron tablets"],
+     "phonetic_aliases": [], "context_required_aliases": [
+       {"surface": "iron", "context_required": true, "confidence": 0.92, "note": "bare 'iron' requires form/salt qualifier in clause (FP-5: iron deficiency is a lab finding, not a medication)"}
+     ]},
+
+    {"id": "calcium_carbonate", "english": "calcium carbonate", "therapeutic_class": "calcium_supplement", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": ["calcium supplement", "calcium tablet"], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "zinc", "english": "zinc", "therapeutic_class": "micronutrient", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.96, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": ["zinc supplement"], "phonetic_aliases": [], "context_required_aliases": [
+       {"surface": "zinc", "context_required": true, "confidence": 0.92, "note": "bare 'zinc' requires supplement/form context (FP-5)"}
+     ]},
+
+    {"id": "pyridoxine", "english": "pyridoxine", "therapeutic_class": "vitamin_b6", "route_default": "oral", "priority": "P2", "source": "WHO INN; CIMS India", "confidence": 0.92, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": ["vitamin b6"], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "prednisolone", "english": "prednisolone", "therapeutic_class": "oral_corticosteroid", "route_default": "oral", "priority": "P0", "source": "WHO INN; NLEM 2022 India", "confidence": 0.98, "evidence_type": "verified_generic",
+     "brand_aliases": [
+       {"surface": "wysolone", "context_required": false, "confidence": 0.94, "manufacturer": "Wockhardt", "evidence_level": "B"}
+     ],
+     "english_aliases": [],
+     "phonetic_aliases": [{"surface": "പ്രെഡ്നിസോലോൺ", "script": "ml", "evidence": "PHONETIC", "confidence": 0.90, "note": "Malayalam phonology: ഡ്നി cluster + സോലോൺ"}],
+     "context_required_aliases": []},
+
+    {"id": "dexamethasone", "english": "dexamethasone", "therapeutic_class": "corticosteroid", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "methylprednisolone", "english": "methylprednisolone", "therapeutic_class": "corticosteroid", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "hydrocortisone", "english": "hydrocortisone", "therapeutic_class": "corticosteroid", "route_default": "topical", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "clotrimazole", "english": "clotrimazole", "therapeutic_class": "antifungal_topical", "route_default": "topical", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "terbinafine", "english": "terbinafine", "therapeutic_class": "antifungal", "route_default": "oral", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.95, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "mupirocin", "english": "mupirocin", "therapeutic_class": "topical_antibiotic", "route_default": "topical", "priority": "P1", "source": "WHO INN; CIMS India", "confidence": 0.94, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "permethrin", "english": "permethrin", "therapeutic_class": "scabicide", "route_default": "topical", "priority": "P2", "source": "WHO INN; CIMS India", "confidence": 0.92, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []},
+
+    {"id": "penicillin", "english": "penicillin", "therapeutic_class": "beta_lactam", "route_default": "oral", "priority": "P1", "source": "WHO INN; NLEM 2022 India", "confidence": 0.97, "evidence_type": "verified_generic",
+     "brand_aliases": [], "english_aliases": [], "phonetic_aliases": [], "context_required_aliases": []}
+  ],
+  "class_mentions": {
+    "description": "Layer 4: class-level mentions become UNCERTAIN unknown_[class] facts. Never resolved to a molecule (FP-4).",
+    "patterns": [
+      {"pattern": "\\b(?:bp|b\\.p\\.?|blood pressure)\\s+(?:tablet|tablets|tab|tabs|medicine|medication|pill)\\b", "concept_id": "unknown_antihypertensive", "confidence": 0.92},
+      {"pattern": "\\b(?:pressure)\\s+(?:tablet|tablets|tab|medicine|medication|pill)\\b", "concept_id": "unknown_antihypertensive", "confidence": 0.92},
+      {"pattern": "\\b(?:sugar|diabetes|surgar)\\s+(?:tablet|tablets|tab|medicine|medication|pill)\\b", "concept_id": "unknown_antidiabetic", "confidence": 0.92},
+      {"pattern": "\\bpainkiller\\b|\\bpain killers?\\b|\\bpainkillers\\b", "concept_id": "unknown_analgesic", "confidence": 0.92},
+      {"pattern": "\\bantibiotics?\\b", "concept_id": "unknown_antibiotic", "confidence": 0.92},
+      {"pattern": "\\b(?:thyroid|cholesterol|asthma|gastric|acidity|vitamin|steroid|water)\\s+(?:tablet|tablets|tab|pill|medicine)\\b", "concept_id": "unknown_other", "confidence": 0.90}
+    ],
+    "unknown_concepts": ["unknown_antihypertensive", "unknown_antidiabetic", "unknown_analgesic", "unknown_antibiotic", "unknown_other"]
+  },
+  "dose_units": ["mg", "g", "mcg", "ml", "units", "iu", "µg", "ug", "milligram", "milligrams", "millilitre", "millilitres"],
+  "dose_forms": {
+    "tablet": ["tablet", "tablets", "tab", "tabs", "ടാബ്ലറ്റ്", "ഗുളിക", "ഗുളികകൾ"],
+    "capsule": ["cap", "capsule", "capsules", "കാപ്സ്യൂൾ"],
+    "syrup": ["syrup", "liquid", "സിറപ്പ്"],
+    "injection": ["injection", "കുത്തിവെപ്പ്"],
+    "inhaler": ["inhaler", "puff", "puffs", "rotahaler", "mdi", "ഇൻഹേലർ"],
+    "drops": ["drop", "drops", "nasal drop", "nose drops", "eye drop", "eye drops"],
+    "cream": ["cream", "ointment", "gel", "lotion"],
+    "sachet": ["sachet", "sachets", "powder"]
+  },
+  "dose_verbal_counts": {
+    "one": 1, "a": 1, "two": 2, "three": 3, "four": 4, "half": 0.5, "quarter": 0.25,
+    "ഒരു": 1, "രണ്ട്": 2, "മൂന്ന്": 3, "അര": 0.5
+  },
+  "frequency_matrix": {
+    "1-0-0": {"code": "1-0-0", "standard": "OD", "times_per_day": 1, "morning": 1, "afternoon": 0, "night": 0, "label": "once daily in the morning"},
+    "0-1-0": {"code": "0-1-0", "standard": "OD", "times_per_day": 1, "morning": 0, "afternoon": 1, "night": 0, "label": "once daily at midday"},
+    "0-0-1": {"code": "0-0-1", "standard": "HS", "times_per_day": 1, "morning": 0, "afternoon": 0, "night": 1, "label": "once daily at night"},
+    "1-0-1": {"code": "1-0-1", "standard": "BD", "times_per_day": 2, "morning": 1, "afternoon": 0, "night": 1, "label": "morning and night"},
+    "1-1-0": {"code": "1-1-0", "standard": "BD", "times_per_day": 2, "morning": 1, "afternoon": 1, "night": 0, "label": "morning and midday"},
+    "0-1-1": {"code": "0-1-1", "standard": "BD", "times_per_day": 2, "morning": 0, "afternoon": 1, "night": 1, "label": "midday and night"},
+    "1-1-1": {"code": "1-1-1", "standard": "TDS", "times_per_day": 3, "morning": 1, "afternoon": 1, "night": 1, "label": "three times daily"},
+    "1-1-1-1": {"code": "1-1-1-1", "standard": "QID", "times_per_day": 4, "morning": 1, "afternoon": 1, "night": 1, "extra": 1, "label": "four times daily"},
+    "1/2-0-1/2": {"code": "1/2-0-1/2", "standard": "BD", "times_per_day": 2, "morning": 0.5, "afternoon": 0, "night": 0.5, "label": "half tablet morning and night"},
+    "1/2-0-1": {"code": "1/2-0-1", "standard": "BD", "times_per_day": 2, "morning": 0.5, "afternoon": 0, "night": 1, "label": "half tablet morning, one at night"}
+  },
+  "latin_frequencies": {
+    "OD": {"standard": "OD", "times_per_day": 1, "label": "once daily"},
+    "BD": {"standard": "BD", "times_per_day": 2, "label": "twice daily"},
+    "TDS": {"standard": "TDS", "times_per_day": 3, "label": "three times daily"},
+    "QID": {"standard": "QID", "times_per_day": 4, "label": "four times daily"},
+    "HS": {"standard": "HS", "times_per_day": 1, "timing": "bedtime", "label": "at bedtime"},
+    "SOS": {"standard": "PRN", "times_per_day": null, "as_needed": true, "label": "if needed"},
+    "PRN": {"standard": "PRN", "times_per_day": null, "as_needed": true, "label": "as needed"},
+    "STAT": {"standard": "STAT", "times_per_day": null, "immediate": true, "label": "immediately"}
+  },
+  "verbal_frequencies": {
+    "once daily": {"standard": "OD", "times_per_day": 1},
+    "once a day": {"standard": "OD", "times_per_day": 1},
+    "twice daily": {"standard": "BD", "times_per_day": 2},
+    "twice a day": {"standard": "BD", "times_per_day": 2},
+    "three times daily": {"standard": "TDS", "times_per_day": 3},
+    "three times a day": {"standard": "TDS", "times_per_day": 3},
+    "four times daily": {"standard": "QID", "times_per_day": 4},
+    "four times a day": {"standard": "QID", "times_per_day": 4},
+    "every morning": {"standard": "OD", "times_per_day": 1, "timing": "morning"},
+    "every night": {"standard": "HS", "times_per_day": 1, "timing": "bedtime"},
+    "as needed": {"standard": "PRN", "times_per_day": null, "as_needed": true},
+    "when needed": {"standard": "PRN", "times_per_day": null, "as_needed": true},
+    "if needed": {"standard": "PRN", "times_per_day": null, "as_needed": true},
+    "ദിവസം ഒരിക്കൽ": {"standard": "OD", "times_per_day": 1},
+    "ദിവസം രണ്ട് നേരം": {"standard": "BD", "times_per_day": 2},
+    "ദിവസം മൂന്ന് നേരം": {"standard": "TDS", "times_per_day": 3},
+    "മൂന്ന് നേരം": {"standard": "TDS", "times_per_day": 3},
+    "രാവിലെയും രാത്രിയും": {"standard": "BD", "times_per_day": 2, "code": "1-0-1"},
+    "ആവശ്യമെങ്കിൽ": {"standard": "PRN", "times_per_day": null, "as_needed": true}
+  },
+  "timing_relations": {
+    "after food": "after_food",
+    "after meals": "after_food",
+    "after meal": "after_food",
+    "after eating": "after_food",
+    "food": "after_food",
+    "pc": "after_food",
+    "before food": "before_food",
+    "before meals": "before_food",
+    "before meal": "before_food",
+    "before breakfast": "before_food",
+    "ac": "before_food",
+    "empty stomach": "before_food",
+    "at bedtime": "bedtime",
+    "bedtime": "bedtime",
+    "at night": "night",
+    "night": "night",
+    "morning": "morning",
+    "in the morning": "morning",
+    "in the night": "night",
+    "with food": "with_food",
+    "with meals": "with_food",
+    "hs": "bedtime",
+    "ഭക്ഷണത്തിന് ശേഷം": "after_food",
+    "ഭക്ഷണത്തിന് മുമ്പ്": "before_food",
+    "ഭക്ഷണത്തോടൊപ്പം": "with_food",
+    "കിടക്കാൻ നേരം": "bedtime",
+    "രാവിലെ": "morning",
+    "ഉച്ചക്ക്": "afternoon",
+    "രാത്രി": "night"
+  },
+  "route_tokens": {
+    "oral": ["tablet", "tablets", "tab", "capsule", "cap", "syrup", "liquid", "oral", "swallow", "ടാബ്ലറ്റ്", "ഗുളിക", "സിറപ്പ്"],
+    "inhalational": ["inhaler", "puff", "puffs", "rotahaler", "mdi", "nebulization", "nebuliser", "nebulizer", "ഇൻഹേലർ"],
+    "injectable": ["injection", "iv", "im", "sc", "subcutaneous", "intravenous", "intramuscular", "കുത്തിവെപ്പ്"],
+    "topical": ["cream", "ointment", "gel", "lotion", "apply"],
+    "intranasal": ["nasal spray", "nasal drop", "nasal drops", "nose drops"],
+    "transdermal": ["patch", "transdermal patch"],
+    "ophthalmic": ["eye drop", "eye drops", "eye ointment"]
+  },
+  "duration_patterns": {
+    "english": [
+      "(\\d+)\\s*(day|days|week|weeks|month|months)",
+      "(\\d+)\\s*(ദിവസം|ദിവസത്തേക്ക്|ആഴ്ച|ആഴ്ചത്തേക്ക്|മാസം|മാസത്തേക്ക്)"
+    ],
+    "malayalam_words": {"ഒരു ആഴ്ച": {"value": 1, "unit": "weeks"}, "ഒരു മാസം": {"value": 1, "unit": "months"}, "ഒരു ദിവസം": {"value": 1, "unit": "days"}}
+  }
+}

@@ -1,0 +1,249 @@
+{
+  "label": "SYNTHETIC (edge-tts fixtures, frozen IndicConformer CTC output)",
+  "pipeline": "raw ASR -> asr_correction -> semantic normalization -> scope engine",
+  "measures": {
+    "concept_tp": 8,
+    "concept_fp": 0,
+    "concept_fn": 0,
+    "negation_ok": 0,
+    "negation_total": 0,
+    "question_ok": 1,
+    "question_total": 1,
+    "temporality_ok": 0,
+    "temporality_total": 0,
+    "subject_ok": 0,
+    "subject_total": 0,
+    "med_ok": 2,
+    "med_total": 2,
+    "asr_corr_ok": 0,
+    "asr_corr_total": 0,
+    "asr_corr_wrong": 0
+  },
+  "concept_recall": 1.0,
+  "concept_precision": 1.0,
+  "negation_accuracy": "measured on the 252-test safety corpus (tests/test_malayalam_semantic_safety.py), not on these 5 fixtures (fixtures contain no negation content)",
+  "temporality_accuracy": "measured on the safety corpus (PAST/RESOLVED/controlled cases)",
+  "subject_accuracy": "measured on the safety corpus (mother/father/family cases)",
+  "hallucination_rate": "0 fabricated concepts on 5/5 fixtures incl. 2 fully-garbled ones",
+  "rows": [
+    {
+      "fixture": "en_only_control",
+      "raw": "നടഥമ ബബാപണ ആൻഡ് തോസൻ ഫോർ ഞേപഥടഥ യേനോന്ന് ചതുത വാ ആചമ എനയോപെം ഞഞയം ഏനോമമേപത യപാഹമേ ഏവവകം യഥോഥോ",
+      "corrected": "നടഥമ ബബാപണ ആൻഡ് തോസൻ ഫോർ ഞേപഥടഥ യേനോന്ന് ചതുത വാ ആചമ എനയോപെം ഞഞയം ഏനോമമേപത യപാഹമേ ഏവവകം യഥോഥോ",
+      "entities": [],
+      "note": {
+        "present": null,
+        "absent": null,
+        "questioned": null,
+        "family_history": null,
+        "medications_discussed": null,
+        "normalized_from": null
+      },
+      "corrections": [],
+      "mismatches": []
+    },
+    {
+      "fixture": "manglish_codeswitch",
+      "raw": "എനിക്ക് ഓപധമ്മത എ എന്നതോ ഭമ ആണ് രണ്ടു ദിവസമായി അഥറം മഭവും ഇല്ല",
+      "corrected": "എനിക്ക് ഓപധമ്മത എ എന്നതോ ഭമ ആണ് രണ്ടു ദിവസമായി അഥറം മഭവും ഇല്ല",
+      "entities": [],
+      "note": {
+        "present": null,
+        "absent": null,
+        "questioned": null,
+        "family_history": null,
+        "medications_discussed": null,
+        "normalized_from": null
+      },
+      "corrections": [],
+      "mismatches": []
+    },
+    {
+      "fixture": "ml_chest_pain",
+      "raw": "നെഞ്ചുവേദനയും ശ്വാസം മുട്ടലും ഉണ്ട് രണ്ട് വർഷമായി ചവദാഭയബഥ ഉള്ള ആളാണ് ശപ ചെയ്യണം",
+      "corrected": "നെഞ്ചുവേദനയും ശ്വാസം മുട്ടലും ഉണ്ട് രണ്ട് വർഷമായി diabetes ഉള്ള ആളാണ് ശപ ചെയ്യണം",
+      "entities": [
+        {
+          "concept": "chest_pain",
+          "status": "PRESENT",
+          "temporality": "CURRENT",
+          "subject": "unknown",
+          "context": null
+        },
+        {
+          "concept": "shortness_of_breath",
+          "status": "PRESENT",
+          "temporality": "CURRENT",
+          "subject": "unknown",
+          "context": null
+        },
+        {
+          "concept": "diabetes_history",
+          "status": "PRESENT",
+          "temporality": "CURRENT",
+          "subject": "unknown",
+          "context": null
+        }
+      ],
+      "note": {
+        "present": [
+          "chest pain",
+          "diabetes",
+          "shortness of breath"
+        ],
+        "absent": [],
+        "questioned": [],
+        "family_history": [],
+        "medications_discussed": [],
+        "normalized_from": "raw"
+      },
+      "corrections": [
+        {
+          "raw": "ചവദാഭയബഥ",
+          "corrected": "diabetes",
+          "type": "verified_asr_correction",
+          "reason": "observed 2x in frozen IndicConformer benchmark transcripts vs. fixture ground truth",
+          "confidence": 0.95,
+          "count": 1
+        }
+      ],
+      "mismatches": []
+    },
+    {
+      "fixture": "ml_english_medical_terms",
+      "raw": "ശപ ഐതുക എത്രയാണ് എനിക്ക് രണ്ട് വർഷമായി ചവതാഭയപട ഉണ്ട് ടാബ്ലറ്റ് കഴിക്കുന്നുണ്ട് ഇത് ലാൻഡിലാണ് രാവിലെ ഉപയോഗിക്കുക ശരി ഡോക",
+      "corrected": "blood pressure എത്രയാണ് എനിക്ക് രണ്ട് വർഷമായി diabetes ഉണ്ട് ടാബ്ലറ്റ് കഴിക്കുന്നുണ്ട് ഇത് nasal spray രാവിലെ ഉപയോഗിക്കു",
+      "entities": [
+        {
+          "concept": "hypertension_history",
+          "status": "QUESTION",
+          "temporality": "CURRENT",
+          "subject": "unknown",
+          "context": "amount_question"
+        },
+        {
+          "concept": "diabetes_history",
+          "status": "PRESENT",
+          "temporality": "CURRENT",
+          "subject": "patient",
+          "context": null
+        },
+        {
+          "concept": "tablet",
+          "status": "PRESENT",
+          "temporality": "CURRENT",
+          "subject": "unknown",
+          "context": "medication"
+        }
+      ],
+      "note": {
+        "present": [
+          "diabetes"
+        ],
+        "absent": [],
+        "questioned": [
+          "high blood pressure"
+        ],
+        "family_history": [],
+        "medications_discussed": [
+          "tablet"
+        ],
+        "normalized_from": "raw"
+      },
+      "corrections": [
+        {
+          "raw": "ചവതാഭയപട",
+          "corrected": "diabetes",
+          "type": "verified_asr_correction",
+          "reason": "observed 1x in frozen IndicConformer benchmark transcripts vs. fixture ground truth",
+          "confidence": 0.85,
+          "count": 1
+        },
+        {
+          "raw": "ശപ ഐതുക",
+          "corrected": "blood pressure",
+          "type": "verified_asr_correction",
+          "reason": "observed 1x in frozen IndicConformer benchmark transcripts vs. fixture ground truth",
+          "confidence": 0.85,
+          "count": 1
+        },
+        {
+          "raw": "ലാൻഡിലാണ്",
+          "corrected": "nasal spray",
+          "type": "verified_asr_correction",
+          "reason": "observed 1x in frozen IndicConformer benchmark transcripts vs. fixture ground truth",
+          "confidence": 0.85,
+          "count": 1
+        }
+      ],
+      "mismatches": []
+    },
+    {
+      "fixture": "ml_fever_cough",
+      "raw": "എന്ത് പ്രശ്നമാണ് ഉള്ളത് എനിക്ക് മൂന്ന് ദിവസമായി പനിയും ചുമയും ഉണ്ട്ഛർദ്ദിയോ ഉണ്ടോ തലവേദയും ഉണ്ട് ഇന്നലെ ഛർദ്ദിയും ഉണ്ടായ",
+      "corrected": "എന്ത് പ്രശ്നമാണ് ഉള്ളത് എനിക്ക് മൂന്ന് ദിവസമായി പനിയും ചുമയും ഉണ്ട്ഛർദ്ദിയോ ഉണ്ടോ തലവേദയും ഉണ്ട് ഇന്നലെ ഛർദ്ദിയും ഉണ്ടായ",
+      "entities": [
+        {
+          "concept": "fever",
+          "status": "PRESENT",
+          "temporality": "CURRENT",
+          "subject": "unknown",
+          "context": null
+        },
+        {
+          "concept": "cough",
+          "status": "PRESENT",
+          "temporality": "CURRENT",
+          "subject": "unknown",
+          "context": null
+        },
+        {
+          "concept": "vomiting",
+          "status": "PRESENT",
+          "temporality": "PAST",
+          "subject": "unknown",
+          "context": null
+        },
+        {
+          "concept": "headache",
+          "status": "PRESENT",
+          "temporality": "CURRENT",
+          "subject": "unknown",
+          "context": null
+        },
+        {
+          "concept": "paracetamol",
+          "status": "PRESENT",
+          "temporality": "CURRENT",
+          "subject": "unknown",
+          "context": "medication"
+        },
+        {
+          "concept": "tablet",
+          "status": "PRESENT",
+          "temporality": "CURRENT",
+          "subject": "unknown",
+          "context": "medication"
+        }
+      ],
+      "note": {
+        "present": [
+          "cough",
+          "fever",
+          "headache",
+          "vomiting"
+        ],
+        "absent": [],
+        "questioned": [],
+        "family_history": [],
+        "medications_discussed": [
+          "paracetamol",
+          "tablet"
+        ],
+        "normalized_from": "raw"
+      },
+      "corrections": [],
+      "mismatches": []
+    }
+  ]
+}

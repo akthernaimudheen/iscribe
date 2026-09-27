@@ -1,0 +1,26 @@
+# iScribe runtime dependencies.
+#
+# The spaCy English model is not on PyPI and must be installed separately:
+#   python -m pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+
+# -- service ---------------------------------------------------------------
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-multipart>=0.0.9
+python-dotenv>=1.0
+
+# -- engine ----------------------------------------------------------------
+faster-whisper>=1.0
+spacy>=3.7
+rapidfuzz>=3.0
+
+# -- tests -----------------------------------------------------------------
+pytest>=8.0
+
+# Storage is SQLite via the Python standard library - no database server.
+#
+# Optional / not required for the trial deployment:
+#   pyannote.audio>=3.1  -> real speaker diarization; needs HF_TOKEN and acceptance of the gated
+#                           pyannote/speaker-diarization-3.1 model on huggingface.co
+#   openai-whisper       -> reference STT implementation; its model CDN (openaipublic.azureedge.net)
+#                           is unreachable from some networks, which is why faster-whisper is the default

@@ -1,0 +1,40 @@
+{
+  "audio": "real_consultation_16k.wav",
+  "provider": "local faster-whisper",
+  "results": [
+    {
+      "config": "base_auto",
+      "model_size": "base",
+      "requested_language": "auto",
+      "reported_language": "ml",
+      "asr_time_seconds": 87.84,
+      "raw_transcript": "begmorning angry khadan returned mmbh आफिल कोते चुगे रह सो motorcycles वोगे वोए। वोगेट फिला यछ़े गरागा वोगेट करणी का लीcia",
+      "status": "ok"
+    },
+    {
+      "config": "base_ml",
+      "model_size": "base",
+      "requested_language": "ml",
+      "reported_language": "ml",
+      "asr_time_seconds": 83.64,
+      "raw_transcript": "褄 hurt good morning good morning sir ரпان demasiado angry rgd rgd vahotal kangalan pinnenu vahgan ngdk raakatad vahgan prahbul talapam talapam sound main vahgan haapakin kabakad Dumar ni liyardhan phubbe yagmetan hai oh ok marinai marinai mubudhe marin darwaran eee eee aag parapum tumengen de nunu aag ok o k aag o k o",
+      "status": "ok"
+    },
+    {
+      "config": "small_ml",
+      "model_size": "small",
+      "requested_language": "ml",
+      "reported_language": "ml",
+      "asr_time_seconds": 32.32,
+      "raw_transcript": "Good morning, good morning. Sir, Pajimaharidham is not ready yet. He is in a hurry. Then he comes and takes his head off. He has a tummy. He doesn't know his cup. He can't eat food. He is in a problem. Did you have lunch before? Did you have lunch before? No, I didn't have lunch before. Do you know the name of your lunch? No. Did you have lunch before?",
+      "status": "ok"
+    },
+    {
+      "config": "large_v3_ml",
+      "model_size": "large-v3",
+      "requested_language": "ml",
+      "status": "failed",
+      "error": "mkl_malloc: failed to allocate memory"
+    }
+  ]
+}

@@ -1,0 +1,1408 @@
+{
+ "version": "1.0",
+ "description": "Malayalam/English clinical language lexicon for iScribe's normalization layer. Data only - no logic. Canonical concepts are what was SAID, never a diagnosis.",
+ "notes": [
+  "Aliases are matched token-aware, not by aggressive fuzzy matching.",
+  "A concept alias must never encode a diagnosis: fever stays fever, not infection.",
+  "suffix_negations handle Malayalam's attached negation (പനിയില്ല = പനി + ഇല്ല).",
+  "asr_variants: spellings the ASR actually produces. Only unambiguous truncations are listed; garbled loanwords are never mapped to a concept.",
+  "phase-3/4 recall phase: conversational question openers and verbatim conversational durations (no invented numbers)"
+ ],
+ "concepts": {
+  "fever": {
+   "english": "fever",
+   "aliases": [
+    "പനി",
+    "ചൂട്",
+    "ചൂടുണ്ട്",
+    "ശരീരത്തിൽ ചൂട്",
+    "ശരീരത്തിൽ ചൂടുണ്ട്",
+    "ശരീരം ചൂടാണ്",
+    "പനി പോലെ",
+    "പനിയുണ്ട്",
+    "പനിയായിരുന്നു",
+    "പനിയാണ്",
+    "പനിയിൽ",
+    "പനിയായിട്ടുണ്ട്",
+    "പനിയും"
+   ],
+   "english_aliases": [
+    "fever",
+    "temperature",
+    "pyrexia"
+   ]
+  },
+  "headache": {
+   "english": "headache",
+   "aliases": [
+    "തലവേദന",
+    "തല വേദന",
+    "തല വേദനിക്കുന്നു",
+    "തലയ്ക്ക് വേദന",
+    "തലയ്ക്ക് വേദനയുണ്ട്",
+    "തല വേദനയുണ്ട്",
+    "തലവേദനയുണ്ട്",
+    "തല പൊട്ടുന്ന പോലെ",
+    "തല പൊട്ടുന്നു",
+    "തല ഭാരമാണ്",
+    "തലയ്ക്ക് ഭാരം",
+    "തലവേദയും",
+    "തലവേദ"
+   ],
+   "english_aliases": [
+    "headache",
+    "head pain"
+   ]
+  },
+  "dizziness": {
+   "english": "dizziness",
+   "aliases": [
+    "തലകറക്കം",
+    "തല കറക്കം",
+    "തല ചുറ്റൽ",
+    "തല ചുറ്റുന്നു",
+    "തല കറങ്ങുന്നു",
+    "ചുറ്റുന്നതുപോലെ",
+    "ചുറ്റുന്ന പോലെ",
+    "തല ചുറ്റുന്നതുപോലെ",
+    "ബോധം പോകുന്ന പോലെ",
+    "വീഴുന്ന പോലെ തോന്നുന്നു"
+   ],
+   "english_aliases": [
+    "dizziness",
+    "dizzy",
+    "light headed",
+    "lightheaded"
+   ]
+  },
+  "fatigue": {
+   "english": "fatigue",
+   "aliases": [
+    "ക്ഷീണം",
+    "ക്ഷീണമുണ്ട്",
+    "തളർച്ച",
+    "തളർച്ചയുണ്ട്",
+    "ശരീരം തളരുന്നു",
+    "ശരീരത്തിന് ക്ഷീണം",
+    "വളരെ ക്ഷീണമാണ്",
+    "തളർന്നിരിക്കുന്നു"
+   ],
+   "english_aliases": [
+    "fatigue",
+    "tired",
+    "tiredness",
+    "exhausted"
+   ]
+  },
+  "weakness": {
+   "english": "weakness",
+   "aliases": [
+    "ബലഹീനത",
+    "ബലം കുറവ്",
+    "ശക്തി കുറവ്"
+   ],
+   "english_aliases": [
+    "weakness",
+    "weak"
+   ]
+  },
+  "body_ache": {
+   "english": "body ache",
+   "aliases": [
+    "ശരീര വേദന",
+    "ശരീരം വേദനിക്കുന്നു",
+    "ശരീരം മുഴുവൻ വേദന",
+    "എല്ലാം വേദനിക്കുന്നു",
+    "എല്ല് വേദന",
+    "എല്ലുകൾ വേദനിക്കുന്നു"
+   ],
+   "english_aliases": [
+    "body ache",
+    "body pain",
+    "bodyache"
+   ]
+  },
+  "muscle_pain": {
+   "english": "muscle pain",
+   "aliases": [
+    "പേശി വേദന",
+    "മസിൽ വേദന"
+   ],
+   "english_aliases": [
+    "muscle pain",
+    "myalgia"
+   ]
+  },
+  "sore_throat": {
+   "english": "sore throat",
+   "aliases": [
+    "തൊണ്ടവേദന",
+    "തൊണ്ട വേദന",
+    "തൊണ്ടയ്ക്ക് വേദന",
+    "തൊണ്ട വേദനിക്കുന്നു",
+    "തൊണ്ടയിൽ വേദന",
+    "തൊണ്ട ചൊറിയുന്നു",
+    "തൊണ്ടയിൽ ചൊറിച്ചിൽ"
+   ],
+   "english_aliases": [
+    "sore throat",
+    "throat pain"
+   ]
+  },
+  "cough": {
+   "english": "cough",
+   "aliases": [
+    "ചുമ",
+    "ചുമയുണ്ട്",
+    "ചുമ വരുന്നു",
+    "ചുമയ്ക്കുന്നു",
+    "ചുമയ്ക്കുന്നുണ്ട്",
+    "ചുമ കൂടുതലാണ്",
+    "ചുമ കുറവാണ്",
+    "ചുമയായിരുന്നു",
+    "ചുമയും"
+   ],
+   "english_aliases": [
+    "cough",
+    "coughing"
+   ]
+  },
+  "dry_cough": {
+   "english": "dry cough",
+   "aliases": [
+    "വരണ്ട ചുമ",
+    "ഉണങ്ങിയ ചുമ"
+   ],
+   "english_aliases": [
+    "dry cough"
+   ],
+   "parent": "cough"
+  },
+  "productive_cough": {
+   "english": "productive cough",
+   "aliases": [
+    "കഫമുള്ള ചുമ",
+    "കഫത്തോടെയുള്ള ചുമ"
+   ],
+   "english_aliases": [
+    "productive cough",
+    "wet cough"
+   ],
+   "parent": "cough"
+  },
+  "phlegm": {
+   "english": "phlegm",
+   "aliases": [
+    "കഫം",
+    "കഫമുണ്ട്",
+    "കഫം വരുന്നു",
+    "കഫം കെട്ടി",
+    "കഫം കെട്ടിയിട്ടുണ്ട്",
+    "തൊണ്ടയിൽ കഫം",
+    "നെഞ്ചിൽ കഫം",
+    "കഫം പുറത്തുവരുന്നു",
+    "കഫവും",
+    "കഫക്കെട്ട്",
+    "കഫക്കെട്ടും"
+   ],
+   "english_aliases": [
+    "phlegm",
+    "sputum",
+    "mucus"
+   ]
+  },
+  "difficulty_eating": {
+   "english": "difficulty eating",
+   "aliases": [
+    "ഫുഡ് കഴിക്കാൻ പറ്റണില്ല",
+    "ഫുഡ് കഴിക്കാൻ പറ്റുന്നില്ല",
+    "ഭക്ഷണം കഴിക്കാൻ പറ്റുന്നില്ല",
+    "ഭക്ഷണം കഴിക്കാൻ പറ്റണില്ല",
+    "ഭക്ഷണം കഴിക്കാൻ ബുദ്ധിമുട്ട്",
+    "ഭക്ഷണം കഴിക്കാൻ ബുദ്ധിമുട്ടുണ്ട്",
+    "ഫുഡ് കഴിക്കാൻ ബുദ്ധിമുട്ട്",
+    "കഴിക്കാൻ പറ്റണില്ല",
+    "കഴിക്കാൻ പറ്റുന്നില്ല",
+    "തിന്നാൻ പറ്റുന്നില്ല",
+    "തിന്നാൻ പറ്റണില്ല",
+    "ഫുഡ് തിന്നാൻ പറ്റുന്നില്ല",
+    "ഒന്നും കഴിക്കാൻ പറ്റുന്നില്ല",
+    "ഒന്നും തിന്നാൻ പറ്റുന്നില്ല"
+   ],
+   "english_aliases": [
+    "difficulty eating",
+    "unable to eat",
+    "cannot eat",
+    "can't eat",
+    "not able to eat",
+    "trouble eating"
+   ],
+   "negative_idioms": [
+    "ഫുഡ് കഴിക്കാൻ പറ്റണില്ല",
+    "ഫുഡ് കഴിക്കാൻ പറ്റുന്നില്ല",
+    "ഭക്ഷണം കഴിക്കാൻ പറ്റുന്നില്ല",
+    "ഭക്ഷണം കഴിക്കാൻ പറ്റണില്ല",
+    "കഴിക്കാൻ പറ്റണില്ല",
+    "കഴിക്കാൻ പറ്റുന്നില്ല",
+    "തിന്നാൻ പറ്റുന്നില്ല",
+    "തിന്നാൻ പറ്റണില്ല",
+    "ഫുഡ് തിന്നാൻ പറ്റുന്നില്ല",
+    "ഒന്നും കഴിക്കാൻ പറ്റുന്നില്ല",
+    "ഒന്നും തിന്നാൻ പറ്റുന്നില്ല",
+    "cannot eat",
+    "can't eat",
+    "unable to eat",
+    "not able to eat"
+   ]
+  },
+  "shortness_of_breath": {
+   "english": "shortness of breath",
+   "aliases": [
+    "ശ്വാസംമുട്ടൽ",
+    "ശ്വാസം മുട്ടൽ",
+    "ശ്വാസം മുട്ടുന്നു",
+    "ശ്വാസം മുട്ടുന്നുണ്ട്",
+    "ശ്വാസം എടുക്കാൻ ബുദ്ധിമുട്ട്",
+    "ശ്വാസം എടുക്കാൻ ബുദ്ധിമുട്ടുണ്ട്",
+    "ശ്വാസം എടുക്കാൻ പറ്റുന്നില്ല",
+    "ശ്വാസം കിട്ടുന്നില്ല",
+    "ശ്വാസം കുറവാണ്",
+    "ശ്വാസം പിടിക്കുന്നു",
+    "ശ്വാസം പിടിക്കുന്ന പോലെ",
+    "വായു കിട്ടുന്നില്ല",
+    "ശ്വാസം എടുക്കുമ്പോൾ ബുദ്ധിമുട്ട്",
+    "ശ്വാസംമുട്ടലില്ല"
+   ],
+   "english_aliases": [
+    "shortness of breath",
+    "breathlessness",
+    "difficulty breathing",
+    "dyspnea",
+    "short of breath"
+   ]
+  },
+  "chest_pain": {
+   "english": "chest pain",
+   "aliases": [
+    "നെഞ്ചുവേദന",
+    "നെഞ്ച് വേദന",
+    "നെഞ്ചിൽ വേദന",
+    "നെഞ്ചിന് വേദന",
+    "നെഞ്ച് വേദനിക്കുന്നു",
+    "നെഞ്ചിൽ വേദനയുണ്ട്",
+    "നെഞ്ചിൽ കുത്തുന്നു",
+    "നെഞ്ചിൽ കുത്തുന്ന പോലെ"
+   ],
+   "english_aliases": [
+    "chest pain"
+   ]
+  },
+  "chest_tightness": {
+   "english": "chest tightness",
+   "aliases": [
+    "നെഞ്ച് കെട്ടിപ്പ്"
+   ],
+   "english_aliases": [
+    "chest tightness"
+   ]
+  },
+  "chest_heaviness": {
+   "english": "chest heaviness",
+   "aliases": [
+    "നെഞ്ചിന് ഭാരം",
+    "നെഞ്ചിൽ ഭാരം"
+   ],
+   "english_aliases": [
+    "chest heaviness"
+   ]
+  },
+  "burning_chest_pain": {
+   "english": "burning chest pain",
+   "aliases": [
+    "നെഞ്ചിൽ കത്തുന്നു",
+    "നെഞ്ചിൽ കത്തുന്ന പോലെ"
+   ],
+   "english_aliases": [
+    "burning chest pain"
+   ]
+  },
+  "palpitations": {
+   "english": "palpitations",
+   "aliases": [
+    "ഹൃദയമിടിപ്പ്",
+    "ഹൃദയമിടിപ്പ് കൂടുന്നു",
+    "ഹൃദയം വേഗത്തിൽ ഇടിക്കുന്നു",
+    "ഹൃദയം ശക്തമായി ഇടിക്കുന്നു",
+    "ഹൃദയം പടപടക്കുന്നു",
+    "നെഞ്ചിൽ പടപടപ്പ്",
+    "ഹൃദയം ഇടിക്കുന്നത് അറിയുന്നു",
+    "ഹൃദയം മിടിക്കുന്നത് കൂടുതലാണ്"
+   ],
+   "english_aliases": [
+    "palpitations",
+    "heart racing"
+   ]
+  },
+  "runny_nose": {
+   "english": "runny nose",
+   "aliases": [
+    "മൂക്കൊലിപ്പ്",
+    "മൂക്കിൽ നിന്ന് വെള്ളം വരുന്നു",
+    "മൂക്ക് ഒഴുകുന്നു",
+    "മൂക്കൊലിക്കുന്നു",
+    "മൂക്ക് വെള്ളം വരുന്നു"
+   ],
+   "english_aliases": [
+    "runny nose",
+    "rhinorrhea"
+   ]
+  },
+  "nasal_congestion": {
+   "english": "nasal congestion",
+   "aliases": [
+    "മൂക്ക് അടപ്പ്",
+    "മൂക്ക് അടഞ്ഞു",
+    "മൂക്ക് അടഞ്ഞിട്ടുണ്ട്",
+    "മൂക്കടപ്പ്",
+    "മൂക്കിലൂടെ ശ്വാസം എടുക്കാൻ പറ്റുന്നില്ല",
+    "മൂക്ക് ബ്ലോക്ക് ആണ്",
+    "മൂക്ക് ബ്ലോക്ക് ആയി"
+   ],
+   "english_aliases": [
+    "nasal congestion",
+    "blocked nose",
+    "stuffy nose"
+   ]
+  },
+  "sneezing": {
+   "english": "sneezing",
+   "aliases": [
+    "തുമ്മൽ",
+    "തുമ്മുന്നു",
+    "തുമ്മുന്നുണ്ട്",
+    "തുടർച്ചയായി തുമ്മുന്നു",
+    "തുമ്മൽ കൂടുതലാണ്"
+   ],
+   "english_aliases": [
+    "sneezing"
+   ]
+  },
+  "nausea": {
+   "english": "nausea",
+   "aliases": [
+    "ഓക്കാനം",
+    "ഓക്കാനം ഉണ്ട്",
+    "ഓക്കാനം തോന്നുന്നു",
+    "മനം മറിയുന്നു",
+    "മനം മറിയുന്ന പോലെ",
+    "ഛർദ്ദിക്കാൻ തോന്നുന്നു",
+    "ഛർദ്ദിക്കാൻ തോന്നുന്നുണ്ട്",
+    "വാന്തി വരുന്നതുപോലെ"
+   ],
+   "english_aliases": [
+    "nausea",
+    "nauseous",
+    "feel like vomiting"
+   ]
+  },
+  "vomiting": {
+   "english": "vomiting",
+   "aliases": [
+    "ഛർദ്ദി",
+    "ഛർദ്ദിക്കുന്നു",
+    "ഛർദ്ദിച്ചു",
+    "ഛർദ്ദിക്കുന്നുണ്ട്",
+    "ഛർദ്ദിയും",
+    "വാന്തി",
+    "വാന്തി വരുന്നു",
+    "വാന്തി ചെയ്തു",
+    "വാന്തി ഉണ്ടായി",
+    "ഛർദ്ദിയോ"
+   ],
+   "english_aliases": [
+    "vomiting",
+    "vomited",
+    "throwing up"
+   ]
+  },
+  "diarrhea": {
+   "english": "diarrhea",
+   "aliases": [
+    "വയറിളക്കം",
+    "വയറിളക്കമുണ്ട്",
+    "വയറിൽ ഇളക്കം",
+    "മലം വെള്ളമാണ്",
+    "വെള്ളം പോലെ മലം",
+    "പലതവണ മലം പോകുന്നു",
+    "പല പ്രാവശ്യം മലം പോകുന്നു"
+   ],
+   "english_aliases": [
+    "diarrhea",
+    "loose motion",
+    "loose stools"
+   ]
+  },
+  "constipation": {
+   "english": "constipation",
+   "aliases": [
+    "മലബന്ധം",
+    "മലം പോകുന്നില്ല",
+    "മലം പോകാൻ ബുദ്ധിമുട്ട്",
+    "മലം കട്ടിയാണ്",
+    "മലം കട്ടിയായി",
+    "മലം ഇറങ്ങുന്നില്ല",
+    "ശരിയായി മലം പോകുന്നില്ല"
+   ],
+   "english_aliases": [
+    "constipation"
+   ]
+  },
+  "abdominal_pain": {
+   "english": "abdominal pain",
+   "aliases": [
+    "വയറുവേദന",
+    "വയറു വേദന",
+    "വയറിന് വേദന",
+    "വയറിൽ വേദന",
+    "വയറു വേദനിക്കുന്നു",
+    "വയറിൽ കുത്തുന്നു",
+    "വയറു പിടിക്കുന്നു"
+   ],
+   "english_aliases": [
+    "abdominal pain",
+    "stomach pain",
+    "stomach ache",
+    "tummy pain"
+   ]
+  },
+  "bloating": {
+   "english": "bloating",
+   "aliases": [
+    "വയറു വീർക്കുന്നു",
+    "വയർ വീർത്തു",
+    "വയർ വീക്കം",
+    "വയറു നിറഞ്ഞ പോലെ",
+    "വയറു നിറഞ്ഞിരിക്കുന്നു",
+    "വയർ പൊങ്ങുന്നു"
+   ],
+   "english_aliases": [
+    "bloating",
+    "bloated"
+   ]
+  },
+  "abdominal_gas": {
+   "english": "abdominal gas",
+   "aliases": [
+    "വയറിൽ ഗ്യാസ്",
+    "ഗ്യാസ് കെട്ടി",
+    "ഗ്യാസ് ഉണ്ട്"
+   ],
+   "english_aliases": [
+    "gas",
+    "flatulence"
+   ]
+  },
+  "heartburn": {
+   "english": "heartburn",
+   "aliases": [
+    "നെഞ്ചെരിച്ചിൽ",
+    "നെഞ്ചിൽ എരിച്ചിൽ"
+   ],
+   "english_aliases": [
+    "heartburn"
+   ]
+  },
+  "acid_reflux": {
+   "english": "acid reflux",
+   "aliases": [
+    "പുളിച്ചു തികട്ടൽ",
+    "പുളിച്ചു വരുന്നു",
+    "പുളിച്ചുതികട്ടുന്നു",
+    "ആസിഡിറ്റി",
+    "അസിഡിറ്റി",
+    "ഗ്യാസ് കയറുന്നു",
+    "വായിൽ പുളിപ്പ്",
+    "പുളിപ്പ് തോന്നുന്നു"
+   ],
+   "english_aliases": [
+    "acid reflux",
+    "acidity",
+    "reflux"
+   ]
+  },
+  "dysuria": {
+   "english": "painful urination",
+   "aliases": [
+    "മൂത്രമൊഴിക്കുമ്പോൾ വേദന",
+    "മൂത്രത്തിൽ വേദന",
+    "മൂത്രം കത്തുന്നു",
+    "മൂത്രമൊഴിക്കുമ്പോൾ കത്തുന്നു",
+    "മൂത്രമൊഴിക്കാൻ ബുദ്ധിമുട്ട്",
+    "മൂത്രം പോകാൻ ബുദ്ധിമുട്ട്"
+   ],
+   "english_aliases": [
+    "painful urination",
+    "burning urination",
+    "dysuria"
+   ]
+  },
+  "urinary_frequency": {
+   "english": "urinary frequency",
+   "aliases": [
+    "ഇടയ്ക്കിടെ മൂത്രം പോകുന്നു",
+    "പലതവണ മൂത്രം പോകുന്നു",
+    "മൂത്രം കൂടുതലാണ്"
+   ],
+   "english_aliases": [
+    "frequent urination",
+    "urinary frequency"
+   ]
+  },
+  "reduced_urine_output": {
+   "english": "reduced urine output",
+   "aliases": [
+    "മൂത്രം കുറവാണ്",
+    "മൂത്രം വരുന്നില്ല"
+   ],
+   "english_aliases": [
+    "reduced urine output",
+    "low urine output"
+   ]
+  },
+  "hematuria": {
+   "english": "blood in urine",
+   "aliases": [
+    "മൂത്രത്തിൽ രക്തം"
+   ],
+   "english_aliases": [
+    "blood in urine",
+    "hematuria"
+   ]
+  },
+  "itching": {
+   "english": "itching",
+   "aliases": [
+    "ചൊറിച്ചിൽ",
+    "ചൊറിയുന്നു",
+    "ചൊറിയുന്നുണ്ട്",
+    "ശരീരത്തിൽ ചൊറിച്ചിൽ",
+    "ചർമ്മത്തിൽ ചൊറിച്ചിൽ"
+   ],
+   "english_aliases": [
+    "itching",
+    "itch",
+    "pruritus"
+   ]
+  },
+  "rash": {
+   "english": "rash",
+   "aliases": [
+    "തിണർപ്പ്",
+    "തിണർപ്പുണ്ട്",
+    "ചർമ്മത്തിൽ തിണർപ്പ്",
+    "ചുവന്ന പാടുകൾ",
+    "പാടുകൾ"
+   ],
+   "english_aliases": [
+    "rash",
+    "hives"
+   ]
+  },
+  "skin_lesion": {
+   "english": "skin lesion",
+   "aliases": [
+    "കുരു",
+    "കുരുക്കൾ",
+    "ചർമ്മത്തിൽ കുരു"
+   ],
+   "english_aliases": [
+    "skin lesion",
+    "boil"
+   ]
+  },
+  "swelling": {
+   "english": "swelling",
+   "aliases": [
+    "വീക്കം",
+    "വീക്കം ഉണ്ട്",
+    "വീർത്തു",
+    "വീർത്തിട്ടുണ്ട്",
+    "കാൽ വീക്കം",
+    "കാലിൽ വീക്കം",
+    "കൈ വീക്കം",
+    "മുഖം വീക്കം",
+    "മുഖം വീർത്തു",
+    "കണ്ണിന് ചുറ്റും വീക്കം"
+   ],
+   "english_aliases": [
+    "swelling",
+    "swollen",
+    "edema"
+   ]
+  },
+  "numbness": {
+   "english": "numbness",
+   "aliases": [
+    "മരവിപ്പ്",
+    "മരവിക്കുന്നു",
+    "മരവിപ്പ് ഉണ്ട്",
+    "കൈ മരവിക്കുന്നു",
+    "കാൽ മരവിക്കുന്നു",
+    "വിരലുകൾ മരവിക്കുന്നു"
+   ],
+   "english_aliases": [
+    "numbness",
+    "numb"
+   ]
+  },
+  "tingling": {
+   "english": "tingling",
+   "aliases": [
+    "തരിപ്പ്",
+    "തരിപ്പുണ്ട്",
+    "തരിപ്പ് തോന്നുന്നു",
+    "സൂചി കുത്തുന്ന പോലെ",
+    "ഉറുമ്പ് നടക്കുന്നതുപോലെ",
+    "ഇഴയുന്നതുപോലെ"
+   ],
+   "english_aliases": [
+    "tingling",
+    "pins and needles"
+   ]
+  },
+  "tremor": {
+   "english": "tremor",
+   "aliases": [
+    "വിറയൽ",
+    "വിറയ്ക്കുന്നു",
+    "ശരീരം വിറയ്ക്കുന്നു",
+    "കൈ വിറയ്ക്കുന്നു",
+    "കൈകൾ വിറയ്ക്കുന്നു",
+    "വിറയലുണ്ട്"
+   ],
+   "english_aliases": [
+    "tremor",
+    "shaking"
+   ]
+  },
+  "chills": {
+   "english": "chills",
+   "aliases": [
+    "തണുത്ത് വിറയ്ക്കുന്നു"
+   ],
+   "english_aliases": [
+    "chills",
+    "shivering",
+    "rigors"
+   ]
+  },
+  "sweating": {
+   "english": "sweating",
+   "aliases": [
+    "വിയർപ്പ്",
+    "വിയർക്കുന്നു",
+    "വിയർക്കുന്നുണ്ട്",
+    "അമിതമായി വിയർക്കുന്നു",
+    "തണുത്ത വിയർപ്പ്"
+   ],
+   "english_aliases": [
+    "sweating",
+    "diaphoresis"
+   ]
+  },
+  "night_sweats": {
+   "english": "night sweats",
+   "aliases": [
+    "രാത്രിയിൽ വിയർക്കുന്നു",
+    "രാത്രി വിയർപ്പ്"
+   ],
+   "english_aliases": [
+    "night sweats"
+   ]
+  },
+  "insomnia": {
+   "english": "insomnia",
+   "aliases": [
+    "ഉറക്കം ഇല്ല",
+    "ഉറക്കം വരുന്നില്ല",
+    "ഉറങ്ങാൻ പറ്റുന്നില്ല",
+    "ഉറങ്ങാൻ കഴിയുന്നില്ല",
+    "ഉറക്കമില്ല",
+    "ഉറക്കക്കുറവ്",
+    "രാത്രി ഉറങ്ങുന്നില്ല"
+   ],
+   "english_aliases": [
+    "insomnia",
+    "cannot sleep",
+    "sleeplessness"
+   ],
+   "inherently_negative": true
+  },
+  "excessive_sleepiness": {
+   "english": "excessive sleepiness",
+   "aliases": [
+    "ഉറക്കം കൂടുതലാണ്",
+    "കൂടുതൽ ഉറങ്ങുന്നു",
+    "എപ്പോഴും ഉറക്കം വരുന്നു"
+   ],
+   "english_aliases": [
+    "excessive sleepiness",
+    "hypersomnia"
+   ]
+  },
+  "loss_of_appetite": {
+   "english": "loss of appetite",
+   "aliases": [
+    "വിശപ്പില്ല",
+    "വിശപ്പ് ഇല്ല",
+    "വിശപ്പ് കുറവാണ്",
+    "വിശപ്പ് കുറഞ്ഞു",
+    "വിശപ്പില്ലായ്മ"
+   ],
+   "english_aliases": [
+    "loss of appetite",
+    "no appetite",
+    "anorexia"
+   ],
+   "inherently_negative": true
+  },
+  "increased_appetite": {
+   "english": "increased appetite",
+   "aliases": [
+    "വിശപ്പ് കൂടുതലാണ്",
+    "കൂടുതൽ വിശക്കുന്നു",
+    "വിശപ്പ് കൂടിയിട്ടുണ്ട്"
+   ],
+   "english_aliases": [
+    "increased appetite"
+   ]
+  },
+  "blurred_vision": {
+   "english": "blurred vision",
+   "aliases": [
+    "കാഴ്ച മങ്ങുന്നു",
+    "കാഴ്ച മങ്ങി",
+    "കണ്ണ് മങ്ങുന്നു",
+    "മങ്ങലായി കാണുന്നു",
+    "വ്യക്തമായി കാണുന്നില്ല",
+    "കാഴ്ച കുറവാണ്"
+   ],
+   "english_aliases": [
+    "blurred vision",
+    "blurry vision"
+   ]
+  },
+  "double_vision": {
+   "english": "double vision",
+   "aliases": [
+    "ഇരട്ടയായി കാണുന്നു",
+    "രണ്ട് രണ്ട് ആയി കാണുന്നു"
+   ],
+   "english_aliases": [
+    "double vision",
+    "diplopia"
+   ]
+  },
+  "hearing_loss": {
+   "english": "hearing loss",
+   "aliases": [
+    "കേൾവി കുറവ്",
+    "കേൾക്കാൻ പറ്റുന്നില്ല",
+    "കേൾവി കുറഞ്ഞു"
+   ],
+   "english_aliases": [
+    "hearing loss",
+    "hard of hearing"
+   ],
+   "inherently_negative": true
+  },
+  "tinnitus": {
+   "english": "tinnitus",
+   "aliases": [
+    "ചെവിയിൽ മൂളൽ",
+    "ചെവിയിൽ ശബ്ദം",
+    "ചെവിയിൽ ശബ്ദം കേൾക്കുന്നു"
+   ],
+   "english_aliases": [
+    "tinnitus",
+    "ringing in ears"
+   ]
+  },
+  "ear_blockage": {
+   "english": "ear blockage",
+   "aliases": [
+    "ചെവി അടഞ്ഞു"
+   ],
+   "english_aliases": [
+    "ear blockage",
+    "blocked ear"
+   ]
+  },
+  "dysphagia": {
+   "english": "difficulty swallowing",
+   "aliases": [
+    "വിഴുങ്ങാൻ ബുദ്ധിമുട്ട്",
+    "വിഴുങ്ങാൻ പറ്റുന്നില്ല",
+    "ഭക്ഷണം ഇറങ്ങുന്നില്ല",
+    "തൊണ്ടയിൽ കുടുങ്ങുന്നു",
+    "തൊണ്ടയിൽ ഭക്ഷണം കുടുങ്ങുന്ന പോലെ"
+   ],
+   "english_aliases": [
+    "difficulty swallowing",
+    "dysphagia"
+   ]
+  },
+  "odynophagia": {
+   "english": "painful swallowing",
+   "aliases": [
+    "വിഴുങ്ങുമ്പോൾ വേദന"
+   ],
+   "english_aliases": [
+    "painful swallowing",
+    "odynophagia"
+   ]
+  },
+  "hoarseness": {
+   "english": "hoarseness",
+   "aliases": [
+    "ശബ്ദം അടഞ്ഞു",
+    "പരുക്കൻ ശബ്ദം",
+    "ശബ്ദം പരുക്കായി"
+   ],
+   "english_aliases": [
+    "hoarseness",
+    "hoarse voice"
+   ]
+  },
+  "voice_change": {
+   "english": "voice change",
+   "aliases": [
+    "ശബ്ദം മാറി",
+    "ശബ്ദം പോയി",
+    "ശബ്ദം കുറച്ചു"
+   ],
+   "english_aliases": [
+    "voice change"
+   ]
+  },
+  "loss_of_smell": {
+   "english": "loss of smell",
+   "aliases": [
+    "മണം അറിയുന്നില്ല",
+    "മണം കിട്ടുന്നില്ല",
+    "മണം കുറഞ്ഞു"
+   ],
+   "english_aliases": [
+    "loss of smell",
+    "anosmia"
+   ],
+   "inherently_negative": true
+  },
+  "loss_of_taste": {
+   "english": "loss of taste",
+   "aliases": [
+    "രുചി അറിയുന്നില്ല",
+    "രുചി കിട്ടുന്നില്ല",
+    "രുചി കുറഞ്ഞു"
+   ],
+   "english_aliases": [
+    "loss of taste",
+    "ageusia"
+   ],
+   "inherently_negative": true
+  },
+  "altered_taste": {
+   "english": "altered taste",
+   "aliases": [
+    "രുചി മാറി"
+   ],
+   "english_aliases": [
+    "altered taste"
+   ]
+  },
+  "pain": {
+   "english": "pain",
+   "aliases": [
+    "വേദന",
+    "വേദനയുണ്ട്",
+    "വേദനിക്കുന്നു",
+    "നൊന്തു",
+    "നൊമ്പരം",
+    "വേദനയില്ല"
+   ],
+   "english_aliases": [
+    "pain"
+   ],
+   "generic": true
+  },
+  "allergy": {
+   "english": "allergies",
+   "aliases": [
+    "അലർജി",
+    "അലർജിയുണ്ട്",
+    "അലർജി ഉണ്ട്"
+   ],
+   "english_aliases": [
+    "allergy",
+    "allergies",
+    "allergic"
+   ]
+  },
+  "diabetes_history": {
+   "english": "diabetes",
+   "aliases": [
+    "പ്രമേഹം",
+    "ഷുഗർ",
+    "ഷുഗറുണ്ട്"
+   ],
+   "english_aliases": [
+    "diabetes",
+    "sugar problem"
+   ]
+  },
+  "hypertension_history": {
+   "english": "high blood pressure",
+   "aliases": [
+    "രക്തസമ്മർദ്ദം",
+    "ബിപി",
+    "പ്രഷർ"
+   ],
+   "english_aliases": [
+    "high blood pressure",
+    "hypertension",
+    "blood pressure"
+   ]
+  }
+ },
+ "presence_markers": [
+  "ഉണ്ട്",
+  "ഉണ്ട",
+  "ഉണ്ട് എന്ന്",
+  "ഉണ്ടെന്ന്",
+  "ഉണ്ടായിരുന്നു",
+  "ഉണ്ടായിരുന്നു എന്ന്",
+  "ഉണ്ടായിട്ടുണ്ട്",
+  "ഉണ്ടായിരുന്ന",
+  "ഉണ്ടാകുന്നു",
+  "ഉണ്ടാകുന്നുണ്ട്",
+  "ഉണ്ടാവുന്നു",
+  "ഉണ്ടാവുന്നുണ്ട്",
+  "ഉണ്ടാകാറുണ്ട്",
+  "ഉണ്ടാവാറുണ്ട്",
+  "വരുന്നു",
+  "വരുന്നുണ്ട്",
+  "വരാറുണ്ട്",
+  "വന്നിരുന്നു",
+  "വന്നു",
+  "ആണ്",
+  "ആയിരുന്നു",
+  "തോന്നുന്നു",
+  "തോന്നുന്നുണ്ട്",
+  "അനുഭവപ്പെടുന്നു",
+  "അനുഭവപ്പെടുന്നുണ്ട്",
+  "ഉള്ളത്",
+  "ഉള്ളതാണ്",
+  "ഉണ്ടായി",
+  "കൂടുതലാണ്"
+ ],
+ "negation_markers": [
+  "ഇല്ല",
+  "ഇല്ലാ",
+  "ഇല്ലെന്ന്",
+  "ഇല്ല എന്ന്",
+  "ഇല്ലായിരുന്നു",
+  "ഇല്ലായിരുന്ന",
+  "ഇല്ലാതായി",
+  "ഇല്ലാത്ത",
+  "ഇല്ലാതെ",
+  "ഒന്നുമില്ല",
+  "ഒന്നും ഇല്ല",
+  "വന്നില്ല",
+  "വരുന്നില്ല",
+  "വരില്ല",
+  "ഉണ്ടായില്ല",
+  "ഉണ്ടാകുന്നില്ല",
+  "ഉണ്ടാകില്ല",
+  "തോന്നുന്നില്ല",
+  "അനുഭവപ്പെടുന്നില്ല",
+  "ബുദ്ധിമുട്ടില്ല",
+  "പ്രശ്നമില്ല"
+ ],
+ "suffix_negations": [
+  "യില്ല",
+  "ില്ല",
+  "മില്ല",
+  "ലില്ല"
+ ],
+ "uncertainty_markers": [
+  "ഉണ്ടാകാം",
+  "ഉണ്ടാവാം",
+  "ആകാം",
+  "സാധ്യതയുണ്ട്",
+  "ഉണ്ടാകാൻ സാധ്യതയുണ്ട്",
+  "ഉണ്ടെന്ന് തോന്നുന്നു",
+  "ആയിരിക്കാം",
+  "പോലെ തോന്നുന്നു",
+  "എന്ന് തോന്നുന്നു",
+  "െന്ന് തോന്നുന്നു"
+ ],
+ "unknown_markers": [
+  "അറിയില്ല",
+  "അറിയത്തില്ല",
+  "ഉറപ്പില്ല",
+  "ഓർമ്മയില്ല",
+  "പറയാൻ പറ്റില്ല"
+ ],
+ "question_markers": [
+  "ഉണ്ടോ",
+  "ഇല്ലേ",
+  "ഇല്ലല്ലോ",
+  "ഉണ്ടായിരുന്നോ",
+  "വരാറുണ്ടോ",
+  "ആണോ",
+  "?"
+ ],
+ "resolution_markers": [
+  "മാറി",
+  "പോയി",
+  "ഭേദമായി",
+  "കുറഞ്ഞു",
+  "ശരിയായി",
+  "ഇല്ലാതായി",
+  "നിന്നു"
+ ],
+ "recurrence_markers": [
+  "വരാറുണ്ട്",
+  "ഉണ്ടാകാറുണ്ട്",
+  "ഉണ്ടാവാറുണ്ട്",
+  "ഇടയ്ക്കിടെ",
+  "വീണ്ടും വീണ്ടും",
+  "ഇടയ്ക്ക്",
+  "പലപ്പോഴും",
+  "വല്ലപ്പോഴും"
+ ],
+ "temporal_markers": {
+  "ഇപ്പോൾ": "CURRENT",
+  "ഇപ്പൊ": "CURRENT",
+  "ഇപ്പോ": "CURRENT",
+  "ഇന്ന്": "CURRENT",
+  "ഇപ്പോഴാണ്": "CURRENT",
+  "ഇന്നുമുതൽ": "CURRENT",
+  "രാവിലെ മുതൽ": "CURRENT",
+  "രാത്രി മുതൽ": "CURRENT",
+  "ഇന്നലെ": "PAST",
+  "മിനിഞ്ഞാന്ന്": "PAST",
+  "ഇന്നലെ മുതൽ": "PAST",
+  "കഴിഞ്ഞ ആഴ്ച": "PAST",
+  "കഴിഞ്ഞ മാസം": "PAST",
+  "കുറച്ച് മുമ്പ്": "PAST",
+  "മുമ്പ്": "PAST",
+  "നേരത്തെ": "PAST",
+  "ഇതിനുമുമ്പ്": "PAST",
+  "നാളെ": "FUTURE",
+  "ഇനി": "FUTURE"
+ },
+ "duration_units": {
+  "ദിവസം": "days",
+  "ദിവസമായി": "days",
+  "ദിവസമായിട്ട്": "days",
+  "ആഴ്ച": "weeks",
+  "ആഴ്ചയായി": "weeks",
+  "ആഴ്ചയായിട്ട്": "weeks",
+  "മാസം": "months",
+  "മാസമായി": "months",
+  "മാസങ്ങളായി": "months",
+  "വർഷം": "years",
+  "വർഷമായി": "years",
+  "വർഷങ്ങളായി": "years",
+  "നാൾ": "days",
+  "നാളായി": "days",
+  "നാളുകളായി": "days"
+ },
+ "numerals": {
+  "ഒരു": 1,
+  "ഒന്ന്": 1,
+  "രണ്ട്": 2,
+  "രണ്ടു": 2,
+  "മൂന്ന്": 3,
+  "നാല്": 4,
+  "അഞ്ച്": 5,
+  "ആറ്": 6,
+  "ആറു": 6,
+  "ഏഴ്": 7,
+  "എട്ട്": 8,
+  "ഒമ്പത്": 9,
+  "പത്ത്": 10,
+  "ഒരാഴ്ച": 1,
+  "രണ്ടാഴ്ച": 2,
+  "ഒരുമാസം": 1,
+  "രണ്ടുമാസം": 2
+ },
+ "vague_durations": [
+  "കുറച്ച് ദിവസം",
+  "കുറേ ദിവസം",
+  "കുറേ നാൾ",
+  "കുറച്ച് ദിവസമായി",
+  "കുറേ നാളായി"
+ ],
+ "severity_markers": {
+  "ചെറിയ": "mild",
+  "കുറച്ച്": "mild",
+  "ലഘുവായ": "mild",
+  "മിതമായ": "moderate",
+  "കൂടുതൽ": "severe",
+  "വളരെ": "severe",
+  "കഠിനമായ": "severe",
+  "കഠിനം": "severe",
+  "സഹിക്കാനാവാത്ത": "severe",
+  "വളരെ അധികം": "severe",
+  "ഭയങ്കരമായി": "severe"
+ },
+ "frequency_markers": [
+  "എപ്പോഴും",
+  "എല്ലായ്പ്പോഴും",
+  "ഇടയ്ക്കിടെ",
+  "വല്ലപ്പോഴും",
+  "അപൂർവ്വമായി",
+  "പലപ്പോഴും",
+  "തുടർച്ചയായി",
+  "തുടർച്ചയായിട്ട്",
+  "ദിവസവും",
+  "ചിലപ്പോൾ",
+  "രാത്രിയിൽ",
+  "രാവിലെ",
+  "ഭക്ഷണം കഴിച്ച ശേഷം",
+  "ഭക്ഷണം കഴിക്കുമ്പോൾ",
+  "ഓടുമ്പോൾ",
+  "നടക്കുമ്പോൾ",
+  "കിടക്കുമ്പോൾ",
+  "കിടന്നാൽ",
+  "എഴുന്നേൽക്കുമ്പോൾ"
+ ],
+ "pain_quality": {
+  "കുത്തുന്ന": "sharp",
+  "കുത്തുന്നു": "sharp",
+  "കുത്തുന്ന പോലെ": "sharp",
+  "കത്തുന്ന": "burning",
+  "കത്തുന്നു": "burning",
+  "എരിയുന്നു": "burning",
+  "വലിക്കുന്ന പോലെ": "pulling",
+  "വലിവ്": "pulling",
+  "വലിക്കുന്നു": "pulling",
+  "പിടിക്കുന്ന പോലെ": "cramping",
+  "പിടിക്കുന്നു": "cramping",
+  "ഭാരം": "heaviness",
+  "ഭാരമുള്ള പോലെ": "heaviness"
+ },
+ "body_locations": {
+  "തല": "head",
+  "നെഞ്ച്": "chest",
+  "നെഞ്ചിൽ": "chest",
+  "വയറ്": "abdomen",
+  "വയറിൽ": "abdomen",
+  "തൊണ്ട": "throat",
+  "തൊണ്ടയിൽ": "throat",
+  "കൈ": "arm",
+  "കാൽ": "leg",
+  "കാലിൽ": "leg",
+  "മുഖം": "face",
+  "ചെവി": "ear",
+  "കണ്ണ്": "eye",
+  "മൂക്ക്": "nose",
+  "പുറം": "back"
+ },
+ "connectors": {
+  "പക്ഷേ": "but",
+  "എന്നാൽ": "however",
+  "അതുകൊണ്ട്": "therefore",
+  "അതുകൊണ്ടാണ്": "because of that",
+  "കാരണം": "because",
+  "അതിന് ശേഷം": "after that",
+  "അതിന് മുമ്പ്": "before that",
+  "പിന്നെ": "then",
+  "ഇപ്പോഴേക്കും": "by now",
+  "വീണ്ടും": "again",
+  "കൂടാതെ": "additionally",
+  "മാത്രം": "only",
+  "പോലും": "even",
+  "അല്ലെങ്കിൽ": "or",
+  "എങ്കിലും": "although"
+ },
+ "clause_splitters": [
+  "പക്ഷേ",
+  "എന്നാൽ",
+  "എങ്കിലും",
+  "അതുകൊണ്ട്",
+  "പിന്നെ",
+  "കൂടാതെ",
+  "but",
+  "however",
+  "although"
+ ],
+ "english_negation_markers": [
+  "no",
+  "not",
+  "don't",
+  "doesn't",
+  "didn't",
+  "never",
+  "denies",
+  "denied",
+  "without",
+  "free of",
+  "negative for",
+  "none",
+  "nil",
+  "absent",
+  "isn't",
+  "wasn't",
+  "haven't",
+  "hasn't"
+ ],
+ "english_presence_markers": [
+  "have",
+  "has",
+  "had",
+  "having",
+  "is",
+  "are",
+  "was",
+  "were",
+  "complains of",
+  "reports",
+  "with",
+  "positive for",
+  "experiencing",
+  "feels",
+  "felt",
+  "get",
+  "gets"
+ ],
+ "english_uncertainty_markers": [
+  "may",
+  "might",
+  "possibly",
+  "perhaps",
+  "could be",
+  "suspect",
+  "probable",
+  "likely",
+  "maybe",
+  "sounds like"
+ ],
+ "english_unknown_markers": [
+  "not sure",
+  "don't know",
+  "do not know",
+  "unsure",
+  "unclear",
+  "can't remember",
+  "cannot remember"
+ ],
+ "english_temporal_markers": {
+  "now": "CURRENT",
+  "currently": "CURRENT",
+  "today": "CURRENT",
+  "at present": "CURRENT",
+  "yesterday": "PAST",
+  "last night": "PAST",
+  "last week": "PAST",
+  "last month": "PAST",
+  "previously": "PAST",
+  "earlier": "PAST",
+  "before": "PAST",
+  "ago": "PAST",
+  "tomorrow": "FUTURE"
+ },
+ "english_recurrence_markers": [
+  "sometimes",
+  "occasionally",
+  "now and then",
+  "on and off",
+  "intermittently",
+  "recurrent",
+  "keeps coming back",
+  "comes and goes"
+ ],
+ "english_resolution_markers": [
+  "gone",
+  "resolved",
+  "settled",
+  "cleared",
+  "better now",
+  "subsided",
+  "went away"
+ ],
+ "english_severity_markers": {
+  "mild": "mild",
+  "slight": "mild",
+  "a little": "mild",
+  "minor": "mild",
+  "moderate": "moderate",
+  "severe": "severe",
+  "bad": "severe",
+  "terrible": "severe",
+  "intense": "severe",
+  "unbearable": "severe",
+  "very": "severe",
+  "excruciating": "severe"
+ },
+ "conditional_markers": [
+  "എങ്കിൽ",
+  "ആണെങ്കിൽ",
+  "ഉണ്ടെങ്കിൽ"
+ ],
+ "english_conditional_markers": [
+  "if",
+  "in case",
+  "should it",
+  "should the",
+  "unless",
+  "whenever"
+ ],
+ "english_question_openers": [
+  "are you ",
+  "do you ",
+  "did you ",
+  "have you ",
+  "has she ",
+  "has he ",
+  "is she ",
+  "is he ",
+  "are they ",
+  "do they ",
+  "were you ",
+  "was he ",
+  "was she ",
+  "any ",
+  "how often ",
+  "how long ",
+  "since when ",
+  "can you ",
+  "could you ",
+  "would you ",
+  "will you ",
+  "should you ",
+  "am i ",
+  "is it "
+ ],
+ "english_conversational_durations": [
+  "the whole (?:week|month|day)",
+  "all (?:fucking |bleeding )?week",
+  "for a while",
+  "lately",
+  "recently",
+  "since then",
+  "several months"
+ ],
+ "english_frequency_markers": [
+  "on a regular basis",
+  "multiple times a (?:week|month|day)",
+  "(?:a )?few times a (?:week|month|day)",
+  "several times a (?:week|month|day)",
+  "every (?:couple|few|2|three|two) (?:of )?(?:days|weeks|months)",
+  "every couple or three days",
+  "most days",
+  "so often"
+ ]
+}

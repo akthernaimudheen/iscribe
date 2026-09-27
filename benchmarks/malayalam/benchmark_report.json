@@ -1,0 +1,277 @@
+{
+ "meta": {
+  "generated": "2026-09-22 15:41:04",
+  "device": "cpu",
+  "note": "Pipeline A = CurrentSTTProvider (faster-whisper base). Pipeline B = IndicConformer ml ASR + IndicTrans2 ml->en. Terminology = presence counts, NOT accuracy."
+ },
+ "terminology_checklist": [
+  "fever",
+  "headache",
+  "cough",
+  "vomit",
+  "chest pain",
+  "breath",
+  "blood pressure",
+  "diabetes",
+  "tablet",
+  "paracetamol",
+  "three days",
+  "five days",
+  "two years",
+  "morning",
+  "evening"
+ ],
+ "audio": [
+  {
+   "audio": "scribe_engine\\stt\\experimental\\indic_malayalam\\test_audio\\en_only_control.wav",
+   "duration_seconds": 18.67,
+   "timestamp": "2026-09-22T15:41:04",
+   "device": "cpu",
+   "python": "3.12.14",
+   "results": {
+    "pipeline_A_current_faster_whisper": {
+     "asr_time_seconds": 37.5,
+     "translation_time_seconds": 0.0,
+     "transcript": "holders kartenin, y hardunda ewga tsud dere hai. Vaa nagdum ba baabana ant i Taskin ghosts far ne eba tanut haitainan ka nad chadit. ecosystem goittoihta ena. Waaja ma ena, nima en生ma me ca b habeni evakum edodako t 25 kills.",
+     "language_detected": "si",
+     "peak_rss_delta_mb": 62.4,
+     "english_translation": "holders kartenin, y hardunda ewga tsud dere hai. Vaa nagdum ba baabana ant i Taskin ghosts far ne eba tanut haitainan ka nad chadit. ecosystem goittoihta ena. Waaja ma ena, nima en生ma me ca b habeni evakum edodako t 25 kills.",
+     "terminology_presence": {
+      "present": [],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "tablet",
+       "paracetamol",
+       "three days",
+       "five days",
+       "two years",
+       "morning",
+       "evening"
+      ],
+      "present_count": 0
+     },
+     "total_time_seconds": 37.5,
+     "realtime_factor": 2.01,
+     "cpu_percent": "unavailable",
+     "gpu": "not measured (CPU run)"
+    },
+    "pipeline_B_indic_malayalam": {
+     "errors": [
+      "OSError: You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M.\n403 Client Error. (Request ID: Root=1-6ab254cd-63a5a63b7da7551b7c63bdc3;7c209797-1127-4eee-867b-61555f15a955)\n\nCannot access gated repo for url https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M/resolve/main/config.json.\nAccess to model ai4bharat/indictrans2-indic-en-dist-200M is restricted and you are not in the authorized list. Visit https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M to ask for access."
+     ],
+     "realtime_factor": "unavailable",
+     "cpu_percent": "unavailable",
+     "gpu": "not measured (CPU run)"
+    }
+   }
+  },
+  {
+   "audio": "scribe_engine\\stt\\experimental\\indic_malayalam\\test_audio\\manglish_codeswitch.wav",
+   "duration_seconds": 11.74,
+   "timestamp": "2026-09-22T15:43:33",
+   "device": "cpu",
+   "python": "3.12.14",
+   "results": {
+    "pipeline_A_current_faster_whisper": {
+     "asr_time_seconds": 18.42,
+     "translation_time_seconds": 0.0,
+     "transcript": "Kathadevan, en iki aapathamma da enidhao bhama ana, randdhivasamai. Daddhaira unnum ille, aoydhaya madhyagu. Adarammafum illa.",
+     "language_detected": "si",
+     "peak_rss_delta_mb": -429.8,
+     "english_translation": "Kathadevan, en iki aapathamma da enidhao bhama ana, randdhivasamai. Daddhaira unnum ille, aoydhaya madhyagu. Adarammafum illa.",
+     "terminology_presence": {
+      "present": [],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "tablet",
+       "paracetamol",
+       "three days",
+       "five days",
+       "two years",
+       "morning",
+       "evening"
+      ],
+      "present_count": 0
+     },
+     "total_time_seconds": 18.42,
+     "realtime_factor": 1.57,
+     "cpu_percent": "unavailable",
+     "gpu": "not measured (CPU run)"
+    },
+    "pipeline_B_indic_malayalam": {
+     "errors": [
+      "OSError: You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M.\n403 Client Error. (Request ID: Root=1-6ab254ec-04c695db1e7c85d829cbadcf;cab95b4c-ac46-4154-a443-4fbd12394bbb)\n\nCannot access gated repo for url https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M/resolve/main/config.json.\nAccess to model ai4bharat/indictrans2-indic-en-dist-200M is restricted and you are not in the authorized list. Visit https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M to ask for access."
+     ],
+     "realtime_factor": "unavailable",
+     "cpu_percent": "unavailable",
+     "gpu": "not measured (CPU run)"
+    }
+   }
+  },
+  {
+   "audio": "scribe_engine\\stt\\experimental\\indic_malayalam\\test_audio\\ml_chest_pain.wav",
+   "duration_seconds": 11.57,
+   "timestamp": "2026-09-22T15:44:05",
+   "device": "cpu",
+   "python": "3.12.14",
+   "results": {
+    "pipeline_A_current_faster_whisper": {
+     "asr_time_seconds": 58.51,
+     "translation_time_seconds": 0.0,
+     "transcript": "ھனکு நெஞ جو வیدھنے ہیں ھسوازم مٹھلமھوں گு ھا چھوازم مٹھلமھوں گு ھا چھوازمھوں گு ھا چھوازمھوں گு ھا چھوازمھوں ھا چھوازمھوں",
+     "language_detected": "te",
+     "peak_rss_delta_mb": -242.9,
+     "english_translation": "ھனکு நெஞ جو வیدھنے ہیں ھسوازم مٹھلமھوں گு ھا چھوازم مٹھلமھوں گு ھا چھوازمھوں گு ھا چھوازمھوں گு ھا چھوازمھوں ھا چھوازمھوں",
+     "terminology_presence": {
+      "present": [],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "tablet",
+       "paracetamol",
+       "three days",
+       "five days",
+       "two years",
+       "morning",
+       "evening"
+      ],
+      "present_count": 0
+     },
+     "total_time_seconds": 58.51,
+     "realtime_factor": 5.06,
+     "cpu_percent": "unavailable",
+     "gpu": "not measured (CPU run)"
+    },
+    "pipeline_B_indic_malayalam": {
+     "errors": [
+      "OSError: You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M.\n403 Client Error. (Request ID: Root=1-6ab25534-3c294a3359e5cdeb1ef075e5;57201f57-0994-4810-8043-a8203b35c7cb)\n\nCannot access gated repo for url https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M/resolve/main/config.json.\nAccess to model ai4bharat/indictrans2-indic-en-dist-200M is restricted and you are not in the authorized list. Visit https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M to ask for access."
+     ],
+     "realtime_factor": "unavailable",
+     "cpu_percent": "unavailable",
+     "gpu": "not measured (CPU run)"
+    }
+   }
+  },
+  {
+   "audio": "scribe_engine\\stt\\experimental\\indic_malayalam\\test_audio\\ml_english_medical_terms.wav",
+   "duration_seconds": 15.24,
+   "timestamp": "2026-09-22T15:45:17",
+   "device": "cpu",
+   "python": "3.12.14",
+   "results": {
+    "pipeline_A_current_faster_whisper": {
+     "asr_time_seconds": 35.1,
+     "translation_time_seconds": 0.0,
+     "transcript": "நீங்களுடை சபெடில் ஆயித்துக்கு ஏற்றையான என்னுக்கு இரண்டு வரஷமாயி, ஜவதா பயப்படா இருண்டு தாவ்வளிட்ட கழிக்கினுண்டு இது தெர்த்தல்லாங்கான யாவில் உப்பியோக்கிக்குக்கா சரி, தோக்க்கர",
+     "language_detected": "ml",
+     "peak_rss_delta_mb": 136.7,
+     "english_translation": "நீங்களுடை சபெடில் ஆயித்துக்கு ஏற்றையான என்னுக்கு இரண்டு வரஷமாயி, ஜவதா பயப்படா இருண்டு தாவ்வளிட்ட கழிக்கினுண்டு இது தெர்த்தல்லாங்கான யாவில் உப்பியோக்கிக்குக்கா சரி, தோக்க்கர",
+     "terminology_presence": {
+      "present": [],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "tablet",
+       "paracetamol",
+       "three days",
+       "five days",
+       "two years",
+       "morning",
+       "evening"
+      ],
+      "present_count": 0
+     },
+     "total_time_seconds": 35.1,
+     "realtime_factor": 2.3,
+     "cpu_percent": "unavailable",
+     "gpu": "not measured (CPU run)"
+    },
+    "pipeline_B_indic_malayalam": {
+     "errors": [
+      "OSError: You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M.\n403 Client Error. (Request ID: Root=1-6ab25560-2b27bd98056e1ba1448bdbea;96bdc65d-bd13-4156-a952-dc0a91154d22)\n\nCannot access gated repo for url https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M/resolve/main/config.json.\nAccess to model ai4bharat/indictrans2-indic-en-dist-200M is restricted and you are not in the authorized list. Visit https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M to ask for access."
+     ],
+     "realtime_factor": "unavailable",
+     "cpu_percent": "unavailable",
+     "gpu": "not measured (CPU run)"
+    }
+   }
+  },
+  {
+   "audio": "scribe_engine\\stt\\experimental\\indic_malayalam\\test_audio\\ml_fever_cough.wav",
+   "duration_seconds": 16.42,
+   "timestamp": "2026-09-22T15:46:01",
+   "device": "cpu",
+   "python": "3.12.14",
+   "results": {
+    "pipeline_A_current_faster_whisper": {
+     "asr_time_seconds": 45.03,
+     "translation_time_seconds": 0.0,
+     "transcript": "நீங்களk Android 12 Enica squash on the new and on the new rainbow reappeared Parasitamore tablet raviyevaigun",
+     "language_detected": "ml",
+     "peak_rss_delta_mb": -313.4,
+     "english_translation": "நீங்களk Android 12 Enica squash on the new and on the new rainbow reappeared Parasitamore tablet raviyevaigun",
+     "terminology_presence": {
+      "present": [
+       "tablet"
+      ],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "paracetamol",
+       "three days",
+       "five days",
+       "two years",
+       "morning",
+       "evening"
+      ],
+      "present_count": 1
+     },
+     "total_time_seconds": 45.03,
+     "realtime_factor": 2.74,
+     "cpu_percent": "unavailable",
+     "gpu": "not measured (CPU run)"
+    },
+    "pipeline_B_indic_malayalam": {
+     "errors": [
+      "OSError: You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M.\n403 Client Error. (Request ID: Root=1-6ab25598-0b19ba814697f77b50d72a02;c7de2ef6-16d7-49d3-bf5c-ecd851ce1a65)\n\nCannot access gated repo for url https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M/resolve/main/config.json.\nAccess to model ai4bharat/indictrans2-indic-en-dist-200M is restricted and you are not in the authorized list. Visit https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M to ask for access."
+     ],
+     "realtime_factor": "unavailable",
+     "cpu_percent": "unavailable",
+     "gpu": "not measured (CPU run)"
+    }
+   }
+  }
+ ]
+}

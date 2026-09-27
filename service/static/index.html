@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iScribe — Clinical Documentation</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">✚</span> iScribe <span class="brand-sub">trial</span></div>
+  <nav class="steps" id="steps">
+    <span data-step="dashboard" data-short="Home" class="step active">Dashboard</span>
+    <span class="step-sep">→</span>
+    <span data-step="consult" data-short="Patient" class="step">Consultation</span>
+    <span class="step-sep">→</span>
+    <span data-step="audio" data-short="Record" class="step">Audio</span>
+    <span class="step-sep">→</span>
+    <span data-step="processing" data-short="Processing" class="step">Processing</span>
+    <span class="step-sep">→</span>
+    <span data-step="results" data-short="Note" class="step">Results</span>
+    <span class="step-sep">→</span>
+    <span data-step="review" data-short="Review" class="step">Review</span>
+    <span class="step-sep">→</span>
+    <span data-step="export" data-short="Export" class="step">Export</span>
+  </nav>
+  <div class="topbar-actions">
+    <span class="topbar-lang">English — supported</span>
+    <span class="topbar-note">Trial — every note requires clinician review</span>
+    <button class="btn btn-ghost btn-small" id="btn-signout">Sign out</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= DASHBOARD ================= -->
+  <section id="view-dashboard" class="view active">
+    <div class="view-head">
+      <h1>Consultations</h1>
+      <button class="btn btn-primary" id="btn-new">＋ New Consultation</button>
+    </div>
+    <p class="hint" id="demo-notice">Identify patients by hospital record number only — do not type patient names into this field.</p>
+    <p class="hint"><b>English is the supported language.</b> Malayalam can be selected per consultation but is <b>experimental and not validated for clinical use</b> — test data only.</p>
+    <p id="ready-chip" class="ready-chip">Checking transcription service…</p>
+    <details id="stt-boundary-panel" class="stt-boundary">
+      <summary>STT Privacy Boundary</summary>
+      <div id="stt-boundary-body" class="stt-boundary-body">
+        <p class="hint">Audio is sent to the configured speech-to-text provider only when the provider's declared processing location and zero-retention configuration satisfy the hospital's active STT policy. Automatic fallback is disabled when fail-closed mode is enabled. This panel shows configuration facts only — it makes no compliance or deletion guarantees.</p>
+        <table class="boundary-table"><tbody id="stt-boundary-rows"></tbody></table>
+      </div>
+    </details>
+    <div id="consult-list" class="card-list"></div>
+  </section>
+
+  <!-- ================= NEW CONSULTATION ================= -->
+  <section id="view-consult" class="view">
+    <div class="view-head"><h1>New Consultation</h1></div>
+    <div class="card form-card">
+      <label>Patient ID
+        <input id="f-patient" value="TRIAL-001" spellcheck="false"
+               placeholder="Hospital record number">
+      </label>
+      <label>Doctor
+        <input id="f-doctor" value="Dr. Demo" spellcheck="false">
+      </label>
+      <label>Consultation language
+        <select id="f-language">
+          <option value="en" selected>English (supported)</option>
+          <option value="ml">Malayalam — EXPERIMENTAL, not for clinical use</option>
+        </select>
+      </label>
+      <p class="hint" id="lang-warning" style="display:none">
+        <b>Malayalam is experimental.</b> Speech recognition and clinical
+        normalization for Malayalam have not been validated on real consultations.
+        Use synthetic or test data only, and read the original Malayalam
+        transcript rather than relying on the English restatement.
+      </p>
+      <label>Department
+        <select id="f-dept">
+          <option>General Medicine</option>
+          <option>Allergy &amp; Immunology</option>
+          <option>Cardiology</option>
+          <option>Dental</option>
+        </select>
+      </label>
+      <label>Consultation Type
+        <select id="f-type">
+          <option>General Consultation</option>
+          <option>Follow-up</option>
+          <option>Acute Visit</option>
+        </select>
+      </label>
+      <div class="form-actions">
+        <button class="btn btn-ghost" data-nav="dashboard">← Back</button>
+        <button class="btn btn-primary" id="btn-create">Continue to Audio →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= AUDIO ================= -->
+  <section id="view-audio" class="view">
+    <div class="view-head">
+      <h1>Audio</h1>
+      <div class="consult-chip" id="audio-consult-chip"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Record consultation</h2>
+        <div class="rec-timer" id="rec-timer">00:00:00</div>
+        <div class="rec-status" id="rec-status">Microphone idle</div>
+        <div class="rec-controls">
+          <button class="btn btn-primary" id="rec-start">● Start</button>
+          <button class="btn" id="rec-pause" disabled>⏸ Pause</button>
+          <button class="btn" id="rec-resume" disabled>▶ Resume</button>
+          <button class="btn btn-danger" id="rec-stop" disabled>■ Stop</button>
+        </div>
+        <div id="rec-result" class="rec-result hidden">
+          <span class="ok">✓</span> Recording ready
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Upload audio</h2>
+        <p class="hint">Supported: wav, mp3, m4a, flac, ogg, webm, aac</p>
+        <input type="file" id="file-input" accept=".wav,.mp3,.m4a,.flac,.ogg,.webm,.aac,audio/*">
+        <div id="upload-result" class="rec-result hidden"><span class="ok">✓</span> <span id="upload-name"></span></div>
+        <div class="sep"></div>
+        <h3>Or process a transcript directly</h3>
+        <p class="hint">Runs clinical documentation on text — no audio needed. Use this to
+          try Malayalam clinical documentation by pasting a Malayalam
+          consultation below.</p>
+        <textarea id="paste-transcript" rows="5" spellcheck="false"
+          placeholder="Paste a consultation transcript here, e.g.&#10;ഡോക്ടറെ, എനിക്ക് മൂന്ന് ദിവസമായി പനി ഉണ്ട്. ചുമയും കഫവും ഉണ്ട്. പക്ഷേ ശ്വാസം മുട്ടൽ ഇല്ല."></textarea>
+        <div class="rec-controls" style="margin-top:10px">
+          <button class="btn btn-primary" id="btn-process-text">Process transcript</button>
+          <button class="btn btn-ghost" id="btn-demo-text">Load English demo</button>
+          <button class="btn btn-ghost" id="btn-demo-ml">Load Malayalam sample</button>
+        </div>
+        <div id="text-error" class="error-box hidden"></div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-ghost" data-nav="consult">← Back</button>
+      <button class="btn btn-primary" id="btn-process" disabled>Process Consultation →</button>
+    </div>
+  </section>
+
+  <!-- ================= PROCESSING ================= -->
+  <section id="view-processing" class="view">
+    <div class="view-head"><h1>Processing</h1></div>
+    <div class="card">
+      <ul class="stages" id="stage-list">
+        <li data-stage="prepare"><span class="dot">○</span> Preparing audio</li>
+        <li data-stage="transcribe"><span class="dot">○</span> Transcribing</li>
+        <li data-stage="speakers"><span class="dot">○</span> Identifying speakers</li>
+        <li data-stage="clinical"><span class="dot">○</span> Generating clinical note &amp; prescription</li>
+      </ul>
+      <p class="hint">Each step appears only while it is actually running on this consultation.</p>
+      <p class="hint ok-inline">You do not need to wait — documentation continues in the
+        background. You can start the next consultation now; this one will show
+        as “ready for review” on the dashboard when done.</p>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="btn-next-patient">＋ Start next consultation</button>
+        <button class="btn btn-ghost" data-nav="dashboard">Dashboard</button>
+      </div>
+      <div id="process-error" class="error-box hidden"></div>
+    </div>
+  </section>
+
+  <!-- ================= RESULTS ================= -->
+  <section id="view-results" class="view">
+    <div class="view-head">
+      <h1>Results</h1>
+      <div class="consult-chip" id="results-consult-chip"></div>
+    </div>
+
+    <div class="card">
+      <div class="results-meta" id="results-meta"></div>
+      <div class="validation-banner hidden" id="validation-banner"></div>
+      <h2>Transcript</h2>
+      <div class="transcript" id="transcript-view"></div>
+      <div class="card hidden" id="normalized-panel"></div>
+    </div>
+
+    <div class="card hidden" id="note-v2-panel"></div>
+
+    <details class="legacy-card" id="legacy-extraction-panel">
+      <summary>Legacy extraction — superseded, for debugging only</summary>
+      <p class="hint">The authoritative clinical note above is rendered from the
+        validated fact graph. The fields below come from the older extraction
+        layer, are kept only for backward compatibility, and must not be used
+        clinically.</p>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Legacy note fields (debug)</h3>
+          <div id="note-fields" class="fields"></div>
+        </div>
+        <div class="card">
+          <h3>Legacy plan fields (debug)</h3>
+          <div id="rx-fields" class="fields"></div>
+        </div>
+      </div>
+    </details>
+
+    <div class="form-actions">
+      <button class="btn btn-ghost" data-nav="dashboard">← Dashboard</button>
+      <button class="btn btn-primary" id="btn-to-review">Review →</button>
+    </div>
+  </section>
+
+  <!-- ================= REVIEW ================= -->
+  <section id="view-review" class="view">
+    <div class="view-head"><h1>Review &amp; Edit</h1></div>
+    <p class="hint">Edit before completing. Values marked [template] are fixed boilerplate from the
+      note template, not extracted from the consultation. The validated fact-graph
+      note shown on the Results page is generated read-only from the transcript
+      evidence and is the authoritative clinical document; these editable fields
+      are the legacy template and are kept for backward compatibility.</p>
+    <div class="card retention-card">
+      <p class="hint" id="review-retention-status"></p>
+      <div id="review-audio-box" class="hidden">
+        <audio id="review-audio-player" controls preload="none"></audio>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h2>Note fields (legacy template — edit)</h2>
+        <div id="review-note-fields" class="fields"></div>
+      </div>
+      <div class="card">
+        <h2>Plan fields (legacy template — edit)</h2>
+        <div id="review-rx-fields" class="fields"></div>
+      </div>
+    </div>
+    <div class="form-actions">        <button class="btn btn-ghost" data-nav="results">← Back to Results</button>
+        <button class="btn" id="btn-save-review">Save edits</button>
+        <button class="btn btn-primary" id="btn-complete">✓ Complete Consultation</button>
+    </div>
+    <div id="review-error" class="error-box hidden"></div>
+  </section>
+
+  <!-- ================= EXPORT ================= -->
+  <section id="view-export" class="view">
+    <div class="view-head"><h1>Export / Complete</h1></div>
+    <div class="card">
+      <div id="export-banner" class="ok-banner hidden">✓ Consultation completed</div>
+      <p class="hint" id="export-retention-status"></p>
+      <pre class="export-preview" id="export-preview">Loading…</pre>
+      <div class="form-actions">
+        <button class="btn btn-ghost" data-nav="dashboard">← Dashboard</button>
+        <a class="btn btn-primary" id="btn-download" download>⬇ Download .txt</a>
+        <button class="btn" id="btn-print">🖨 Print</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

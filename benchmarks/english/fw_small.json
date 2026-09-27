@@ -1,0 +1,48 @@
+{
+  "provider": "current_faster_whisper",
+  "provider_selection": "explicitly selected: current_faster_whisper",
+  "requested_language": "en",
+  "reported_language": "en",
+  "audio_duration_s": 82.056,
+  "processing_seconds": 126.16,
+  "realtime_factor": 0.65,
+  "validation_severity": "ok",
+  "validation_codes": [],
+  "word_error_rate": 0.0655,
+  "accuracy_pct": 93.45,
+  "substitutions": 5,
+  "insertions": 0,
+  "deletions": 6,
+  "reference_words": 168,
+  "hypothesis_words": 162,
+  "segments": 18,
+  "speaker_method": "alternating",
+  "roles_known": false,
+  "clinical_terms_present": [
+    "fever",
+    "cough",
+    "three days",
+    "headache",
+    "vomited",
+    "paracetamol",
+    "allergies",
+    "blood pressure",
+    "viral",
+    "five hundred",
+    "ten milligrams",
+    "five days",
+    "one week"
+  ],
+  "clinical_terms_missing": [
+    "cetirizine",
+    "twice a day"
+  ],
+  "clinical_terms_score": "13/15",
+  "words_not_in_ground_truth": [
+    "10mg",
+    "500mg",
+    "ceterazine",
+    "wise"
+  ],
+  "transcript": "Good morning. Please sit down. What brings you in today? Good morning doctor. I have been having a fever and a bad cough for the last three days. Any headache or body pain along with that? Yes, I have a headache mostly in the evening. And I vomited once yesterday. Are you taking any medication currently? I took paracetamol twice but the fever came back. Do you have any known allergies? No allergies doctor. Any history of diabetes or high blood pressure? My blood pressure was slightly high last year but I am not on any tablets. Let me check. Your temperature is 101 degrees. Is it serious doctor? It looks like a viral infection. I will start you on paracetamol 500mg wise a day after food for five days. Should I take anything for the cough? Yes, take Ceterazine 10mg at night. Drink plenty of fluids and come back in one week if the fever does not settle. Thank you doctor."
+}

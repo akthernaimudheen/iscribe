@@ -1,0 +1,444 @@
+{
+ "meta": {
+  "generated": "2026-09-22T19:19:33",
+  "device": "cuda",
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "note": "Pipeline A = CurrentSTTProvider (faster-whisper base). Pipeline B = IndicConformer ml ASR + IndicTrans2 ml->en. Terminology test = term presence counts, NOT accuracy."
+ },
+ "audio": [
+  {
+   "audio": "scribe_engine\\stt\\experimental\\indic_malayalam\\test_audio\\ml_fever_cough.wav",
+   "duration_seconds": 16.42,
+   "timestamp": "2026-09-22T19:19:34",
+   "device": "cuda",
+   "python": "3.12.14",
+   "results": {
+    "pipeline_A_current_faster_whisper": {
+     "asr_time_seconds": 36.44,
+     "translation_time_seconds": 0.0,
+     "transcript": "நீங்கள் Και எங்கள் ரété உங்கள் அந்த Express siehtட்டமானா problemas எங்கள் என்னுக்கும் ஒன்று மிக்குத்த வதபானிகள் ஒரு சிரத்து விழை ப நினைத்து அப்பி",
+     "language_detected": "ml",
+     "peak_rss_delta_mb": 141.0,
+     "cpu_seconds": 132.45,
+     "english_translation": "நீங்கள் Και எங்கள் ரété உங்கள் அந்த Express siehtட்டமானா problemas எங்கள் என்னுக்கும் ஒன்று மிக்குத்த வதபானிகள் ஒரு சிரத்து விழை ப நினைத்து அப்பி",
+     "terminology_presence": {
+      "present": [],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "tablet",
+       "paracetamol",
+       "three days",
+       "five days",
+       "two years",
+       "morning",
+       "evening"
+      ],
+      "present_count": 0
+     },
+     "total_time_seconds": 36.44,
+     "realtime_factor": 2.22,
+     "cpu_percent": "unavailable",
+     "gpu": "unavailable"
+    },
+    "pipeline_B_indic_malayalam": {
+     "asr_time_seconds": 5.96,
+     "translation_time_seconds": 2.31,
+     "total_time_seconds": 111.77,
+     "transcript": "എന്ത് പ്രശ്നമാണ് ഉള്ളത് എനിക്ക് മൂന്ന് ദിവസമായി പനിയും ചുമയും ഉണ്ട്ഛർദ്ദിയോ ഉണ്ടോ തലവേദയും ഉണ്ട് ഇന്നലെ ഛർദ്ദിയും ഉണ്ടായിരുന്നു പാരസിറ്റമോൾ ടാബ്ലറ്റ് രാവിലെ വൈകുന്നേരം കഴിക്കുക",
+     "english_translation": "what is the problem i have fever and cough for three days, vomiting or headache, yesterday i had vomiting also take paracetamol tablet in the morning and evening",
+     "asr_model": "ai4bharat/indicconformer_stt_ml_hybrid_ctc_rnnt_large",
+     "mt_model": "ai4bharat/indictrans2-indic-en-dist-200M",
+     "asr_revision": "unavailable",
+     "mt_revision": "unavailable",
+     "peak_rss_delta_mb": 230.3,
+     "cpu_seconds": 55.0,
+     "rss_mb": 397.1,
+     "gpu": {
+      "name": "NVIDIA GeForce GTX 1650",
+      "vram_peak_allocated_mib": 1355.9,
+      "vram_peak_reserved_mib": 1380.0,
+      "vram_total_mib": 4095.8
+     },
+     "terminology_presence": {
+      "present": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "tablet",
+       "paracetamol",
+       "three days",
+       "morning",
+       "evening"
+      ],
+      "missing": [
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "five days",
+       "two years"
+      ],
+      "present_count": 9
+     },
+     "realtime_factor": 6.81,
+     "cpu_percent": "unavailable"
+    }
+   }
+  },
+  {
+   "audio": "scribe_engine\\stt\\experimental\\indic_malayalam\\test_audio\\ml_chest_pain.wav",
+   "duration_seconds": 11.57,
+   "timestamp": "2026-09-22T19:22:14",
+   "device": "cuda",
+   "python": "3.12.14",
+   "results": {
+    "pipeline_A_current_faster_whisper": {
+     "asr_time_seconds": 27.95,
+     "translation_time_seconds": 0.0,
+     "transcript": "என்னுக்கு நெஞ்சுவைதனேய்ம,ுஞ்சு வாசம் முட்டில்முண்டு எத்துவுதனாலாய் இரண்டு வர்ஷமாயி,சவதா பயபதாு உள்ளா ஆளான உடனே சவப்பதுக் கொள்ளத்தேனம",
+     "language_detected": "te",
+     "peak_rss_delta_mb": 207.6,
+     "cpu_seconds": 89.87,
+     "english_translation": "என்னுக்கு நெஞ்சுவைதனேய்ம,ுஞ்சு வாசம் முட்டில்முண்டு எத்துவுதனாலாய் இரண்டு வர்ஷமாயி,சவதா பயபதாு உள்ளா ஆளான உடனே சவப்பதுக் கொள்ளத்தேனம",
+     "terminology_presence": {
+      "present": [],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "tablet",
+       "paracetamol",
+       "three days",
+       "five days",
+       "two years",
+       "morning",
+       "evening"
+      ],
+      "present_count": 0
+     },
+     "total_time_seconds": 27.95,
+     "realtime_factor": 2.42,
+     "cpu_percent": "unavailable",
+     "gpu": "unavailable"
+    },
+    "pipeline_B_indic_malayalam": {
+     "asr_time_seconds": 0.53,
+     "translation_time_seconds": 1.13,
+     "total_time_seconds": 1.66,
+     "transcript": "നെഞ്ചുവേദനയും ശ്വാസം മുട്ടലും ഉണ്ട് രണ്ട് വർഷമായി ചവദാഭയബഥ ഉള്ള ആളാണ് ശപ ചെയ്യണം",
+     "english_translation": "Chest pain and shortness of breath should be cursed by a person who has had asthma for two years.",
+     "asr_model": "ai4bharat/indicconformer_stt_ml_hybrid_ctc_rnnt_large",
+     "mt_model": "ai4bharat/indictrans2-indic-en-dist-200M",
+     "asr_revision": "unavailable",
+     "mt_revision": "unavailable",
+     "peak_rss_delta_mb": 33.4,
+     "cpu_seconds": 3.22,
+     "rss_mb": 651.4,
+     "gpu": {
+      "name": "NVIDIA GeForce GTX 1650",
+      "vram_peak_allocated_mib": 1392.4,
+      "vram_peak_reserved_mib": 1428.0,
+      "vram_total_mib": 4095.8
+     },
+     "terminology_presence": {
+      "present": [
+       "chest pain",
+       "breath",
+       "two years"
+      ],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "blood pressure",
+       "diabetes",
+       "tablet",
+       "paracetamol",
+       "three days",
+       "five days",
+       "morning",
+       "evening"
+      ],
+      "present_count": 3
+     },
+     "realtime_factor": 0.14,
+     "cpu_percent": "unavailable"
+    }
+   }
+  },
+  {
+   "audio": "scribe_engine\\stt\\experimental\\indic_malayalam\\test_audio\\ml_english_medical_terms.wav",
+   "duration_seconds": 15.24,
+   "timestamp": "2026-09-22T19:22:44",
+   "device": "cuda",
+   "python": "3.12.14",
+   "results": {
+    "pipeline_A_current_faster_whisper": {
+     "asr_time_seconds": 8.36,
+     "translation_time_seconds": 0.0,
+     "transcript": "நீங்களுடை சபெடில் ஆயித்துக்கு ஏற்றையான என்னுக்கு இரண்டு வரஷமாயி, ஜவதா பயப்படா இருண்டு தாவ்வளிட்ட கழிக்கினுண்டு இது தெர்த்தல்லாங்கான யாவில் உப்பியோக்கிக்குக்கா சரி, தோக்க்கர",
+     "language_detected": "ml",
+     "peak_rss_delta_mb": -99.5,
+     "cpu_seconds": 30.68,
+     "english_translation": "நீங்களுடை சபெடில் ஆயித்துக்கு ஏற்றையான என்னுக்கு இரண்டு வரஷமாயி, ஜவதா பயப்படா இருண்டு தாவ்வளிட்ட கழிக்கினுண்டு இது தெர்த்தல்லாங்கான யாவில் உப்பியோக்கிக்குக்கா சரி, தோக்க்கர",
+     "terminology_presence": {
+      "present": [],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "tablet",
+       "paracetamol",
+       "three days",
+       "five days",
+       "two years",
+       "morning",
+       "evening"
+      ],
+      "present_count": 0
+     },
+     "total_time_seconds": 8.36,
+     "realtime_factor": 0.55,
+     "cpu_percent": "unavailable",
+     "gpu": "unavailable"
+    },
+    "pipeline_B_indic_malayalam": {
+     "asr_time_seconds": 0.41,
+     "translation_time_seconds": 1.5,
+     "total_time_seconds": 1.91,
+     "transcript": "ശപ ഐതുക എത്രയാണ് എനിക്ക് രണ്ട് വർഷമായി ചവതാഭയപട ഉണ്ട് ടാബ്ലറ്റ് കഴിക്കുന്നുണ്ട് ഇത് ലാൻഡിലാണ് രാവിലെ ഉപയോഗിക്കുക ശരി ഡോക്ടർ",
+     "english_translation": "curse how much is five pesos i've had a garbage can for two years. i'm taking a tablet. use it in the morning in the land ok doctor",
+     "asr_model": "ai4bharat/indicconformer_stt_ml_hybrid_ctc_rnnt_large",
+     "mt_model": "ai4bharat/indictrans2-indic-en-dist-200M",
+     "asr_revision": "unavailable",
+     "mt_revision": "unavailable",
+     "peak_rss_delta_mb": 3.3,
+     "cpu_seconds": 3.75,
+     "rss_mb": 565.2,
+     "gpu": {
+      "name": "NVIDIA GeForce GTX 1650",
+      "vram_peak_allocated_mib": 1410.3,
+      "vram_peak_reserved_mib": 1490.0,
+      "vram_total_mib": 4095.8
+     },
+     "terminology_presence": {
+      "present": [
+       "tablet",
+       "two years",
+       "morning"
+      ],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "paracetamol",
+       "three days",
+       "five days",
+       "evening"
+      ],
+      "present_count": 3
+     },
+     "realtime_factor": 0.13,
+     "cpu_percent": "unavailable"
+    }
+   }
+  },
+  {
+   "audio": "scribe_engine\\stt\\experimental\\indic_malayalam\\test_audio\\manglish_codeswitch.wav",
+   "duration_seconds": 11.74,
+   "timestamp": "2026-09-22T19:22:54",
+   "device": "cuda",
+   "python": "3.12.14",
+   "results": {
+    "pipeline_A_current_faster_whisper": {
+     "asr_time_seconds": 4.66,
+     "translation_time_seconds": 0.0,
+     "transcript": "Kathadevan, en iki aapathamma da enidhao bhama ana, randdhivasamai. Daddhaira unnum ille, aoydhaya madhyagu. Adarammafum illa.",
+     "language_detected": "si",
+     "peak_rss_delta_mb": 0.0,
+     "cpu_seconds": 15.02,
+     "english_translation": "Kathadevan, en iki aapathamma da enidhao bhama ana, randdhivasamai. Daddhaira unnum ille, aoydhaya madhyagu. Adarammafum illa.",
+     "terminology_presence": {
+      "present": [],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "tablet",
+       "paracetamol",
+       "three days",
+       "five days",
+       "two years",
+       "morning",
+       "evening"
+      ],
+      "present_count": 0
+     },
+     "total_time_seconds": 4.66,
+     "realtime_factor": 0.4,
+     "cpu_percent": "unavailable",
+     "gpu": "unavailable"
+    },
+    "pipeline_B_indic_malayalam": {
+     "asr_time_seconds": 0.34,
+     "translation_time_seconds": 0.66,
+     "total_time_seconds": 0.99,
+     "transcript": "എനിക്ക് ഓപധമ്മത എ എന്നതോ ഭമ ആണ് രണ്ടു ദിവസമായി അഥറം മഭവും ഇല്ല",
+     "english_translation": "I don't have an A or B for two days.",
+     "asr_model": "ai4bharat/indicconformer_stt_ml_hybrid_ctc_rnnt_large",
+     "mt_model": "ai4bharat/indictrans2-indic-en-dist-200M",
+     "asr_revision": "unavailable",
+     "mt_revision": "unavailable",
+     "peak_rss_delta_mb": 0.5,
+     "cpu_seconds": 2.31,
+     "rss_mb": 565.9,
+     "gpu": {
+      "name": "NVIDIA GeForce GTX 1650",
+      "vram_peak_allocated_mib": 1392.6,
+      "vram_peak_reserved_mib": 1490.0,
+      "vram_total_mib": 4095.8
+     },
+     "terminology_presence": {
+      "present": [],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "tablet",
+       "paracetamol",
+       "three days",
+       "five days",
+       "two years",
+       "morning",
+       "evening"
+      ],
+      "present_count": 0
+     },
+     "realtime_factor": 0.08,
+     "cpu_percent": "unavailable"
+    }
+   }
+  },
+  {
+   "audio": "scribe_engine\\stt\\experimental\\indic_malayalam\\test_audio\\en_only_control.wav",
+   "duration_seconds": 18.67,
+   "timestamp": "2026-09-22T19:23:00",
+   "device": "cuda",
+   "python": "3.12.14",
+   "results": {
+    "pipeline_A_current_faster_whisper": {
+     "asr_time_seconds": 35.33,
+     "translation_time_seconds": 0.0,
+     "transcript": "ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa",
+     "language_detected": "si",
+     "peak_rss_delta_mb": -382.1,
+     "cpu_seconds": 136.07,
+     "english_translation": "ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa ھa",
+     "terminology_presence": {
+      "present": [],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "tablet",
+       "paracetamol",
+       "three days",
+       "five days",
+       "two years",
+       "morning",
+       "evening"
+      ],
+      "present_count": 0
+     },
+     "total_time_seconds": 35.33,
+     "realtime_factor": 1.89,
+     "cpu_percent": "unavailable",
+     "gpu": "unavailable"
+    },
+    "pipeline_B_indic_malayalam": {
+     "asr_time_seconds": 0.66,
+     "translation_time_seconds": 2.14,
+     "total_time_seconds": 2.8,
+     "transcript": "നടഥമ ബബാപണ ആൻഡ് തോസൻ ഫോർ ഞേപഥടഥ യേനോന്ന് ചതുത വാ ആചമ എനയോപെം ഞഞയം ഏനോമമേപത യപാഹമേ ഏവവകം യഥോഥോ",
+     "english_translation": "Nadathama Babapana and Thosan for Nepathathatha Yenon Chathutha Va Achama Enayopem Nai Enomamepatha Yapahame Anything",
+     "asr_model": "ai4bharat/indicconformer_stt_ml_hybrid_ctc_rnnt_large",
+     "mt_model": "ai4bharat/indictrans2-indic-en-dist-200M",
+     "asr_revision": "unavailable",
+     "mt_revision": "unavailable",
+     "peak_rss_delta_mb": 57.5,
+     "cpu_seconds": 4.87,
+     "rss_mb": 241.5,
+     "gpu": {
+      "name": "NVIDIA GeForce GTX 1650",
+      "vram_peak_allocated_mib": 1427.8,
+      "vram_peak_reserved_mib": 1564.0,
+      "vram_total_mib": 4095.8
+     },
+     "terminology_presence": {
+      "present": [],
+      "missing": [
+       "fever",
+       "headache",
+       "cough",
+       "vomit",
+       "chest pain",
+       "breath",
+       "blood pressure",
+       "diabetes",
+       "tablet",
+       "paracetamol",
+       "three days",
+       "five days",
+       "two years",
+       "morning",
+       "evening"
+      ],
+      "present_count": 0
+     },
+     "realtime_factor": 0.15,
+     "cpu_percent": "unavailable"
+    }
+   }
+  }
+ ]
+}

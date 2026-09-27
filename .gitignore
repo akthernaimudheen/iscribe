@@ -1,0 +1,94 @@
+# Virtualenvs
+.venv/
+.venv-ml/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Runtime data — NEVER commit: may contain PHI
+uploads/
+/data/
+*.db
+*.sqlite3
+*.sqlite3-journal
+/logs/
+*.log
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Upstream reference clone (has its own .git)
+upstream-scribe/
+
+# Benchmark scratch / probes
+/benchmark_*.json
+_pipeline_probe*.py
+_pipeline_probe_result.txt
+_probe_transcript.txt
+.freebuff/
+
+# OS
+Thumbs.db
+desktop.ini
+_asr_results.json
+_*_results.json
+
+# Malayalam experiment scratch. benchmarks/ IS tracked - it is the frozen
+# evidence the decision document cites.
+_bench_detached.py
+
+# Experiment artifacts: real-audio results (potential PHI) — never commit
+experiments/malayalam_speech_translation/*.m4a
+experiments/malayalam_speech_translation/*.mp3
+experiments/malayalam_speech_translation/results/
+experiments/status_scope/evidence_*.wav
+benchmarks/malayalam/real_audio_asr/evidence_*.wav
+_real_audio_doc_result.json
+
+# Note-generator real-audio artifacts: derived from the real consultation
+# (contain Malayalam source clauses) - reproducible via the committed runner.
+experiments/note_generator/real_audio_*.json
+
+# ---------------------------------------------------------------------------
+# REAL CONSULTATION CONTENT — never enters git (patient data).
+# These stay only on the machine that owns the recordings; CI and fresh
+# clones run the suite with the corresponding tests skipped.
+# ---------------------------------------------------------------------------
+# Real Malayalam consultation transcript + English medico-legal dictations
+# (names, DOB, addresses, phone numbers).
+tests/fixtures/malayalam_real_consultation.txt
+tests/fixtures/english_real_cases/
+# Unseen-recording transcripts (real third-party speech, Kazi/ST-AESC corpora,
+# Commons Speech, synthetic persona set)
+tests/fixtures/unseen_audio/
+# Real consultation recordings and their ASR transcripts (benchmarks)
+benchmarks/malayalam/real_audio_asr/real_consultation_16k.wav
+benchmarks/malayalam/real_audio_asr/transcript_*.txt
+benchmarks/malayalam/real_audio_asr/evaluation.json
+benchmarks/malayalam/real_audio_asr/indicconformer_ctc.json
+benchmarks/malayalam/real_audio_asr/real_audio_asr_report.md
+experiments/status_scope/asr_evidence_probe.json
+benchmarks/malayalam/logs/
+benchmarks/malayalam/sidecar_audio_run.json
+benchmarks/malayalam/gpu_vs_cpu_device_comparison.json
+benchmarks/malayalam/offline_tokenless_gpu.json
+benchmarks/malayalam/pipelineB_full_gpu.json
+# Demo-instance runtime data created during local verification
+data-demo/
+
+# Clinical Intelligence V2 experiment artifacts: real transcript renders and
+# the real-audio corpus (regenerable from the committed runners)
+experiments/clinical_intelligence_v2/out/
+experiments/clinical_intelligence_v2/unseen_audio/
+experiments/clinical_intelligence_v2/baseline_trace.json
+
+# Local assistant/tool settings
+.claude/
+.exact/

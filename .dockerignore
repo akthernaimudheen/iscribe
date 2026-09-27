@@ -1,0 +1,31 @@
+.venv/
+.venv-ml/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.git/
+.gitignore
+
+# Runtime data — never bake PHI into an image
+data/
+uploads/
+logs/
+*.log
+*.db
+*.sqlite3
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Reference / experimental material not needed at runtime
+upstream-scribe/
+tests/
+docs/
+scribe_engine/stt/experimental/
+benchmark_*.json
+_*.py
+_*.txt
+_*.json
+.freebuff/

@@ -1,0 +1,13 @@
+{
+  "device": "cuda",
+  "audio": "ml_fever_cough.wav",
+  "malayalam_transcript": "എന്ത് പ്രശ്നമാണ് ഉള്ളത് എനിക്ക് മൂന്ന് ദിവസമായി പനിയും ചുമയും ഉണ്ട്ഛർദ്ദിയോ ഉണ്ടോ തലവേദയും ഉണ്ട് ഇന്നലെ ഛർദ്ദിയും ഉണ്ടായിരുന്നു പാരസിറ്റമോൾ ടാബ്ലറ്റ് രാവിലെ വൈകുന്നേരം കഴിക്കുക",
+  "english_translation": "what is the problem i have fever and cough for three days, vomiting or headache, yesterday i had vomiting also take paracetamol tablet in the morning and evening",
+  "total_seconds": 107.66,
+  "asr_seconds": 2.06,
+  "translation_seconds": 4.42,
+  "asr_model": "ai4bharat/indicconformer_stt_ml_hybrid_ctc_rnnt_large",
+  "mt_model": "ai4bharat/indictrans2-indic-en-dist-200M",
+  "blocked_network_attempts": [],
+  "offline_tokenless_pass": true
+}
