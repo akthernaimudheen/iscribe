@@ -247,7 +247,9 @@ def test_engine_result_meta_carries_no_filesystem_path():
     # Build the same meta shape process_audio returns, from a known path.
     import pathlib
 
-    path = pathlib.Path(r"C:\server\secret\uploads\abc123.wav")
+    # PureWindowsPath keeps the server-secret directory semantics on every
+    # platform (the server path is Windows-shaped regardless of CI OS).
+    path = pathlib.PureWindowsPath(r"C:\server\secret\uploads\abc123.wav")
     meta = {"audio_filename": path.name, "audio_duration_s": 1.0}
     blob = json.dumps(meta)
     assert "secret" not in blob

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import importlib
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -1243,9 +1244,15 @@ def test_47_stt_boundary_endpoint_shape_and_auth(app_module, auth_client):
     res = auth_client.get("/api/stt/boundary")
     assert res.status_code == 200
     body = res.json()
-    assert body["provider"] == "deepgram"
+    # The provider reflects the deployment: Deepgram only when a key exists
+    # (CI has none → the honest answer is the local provider).
+    expected_provider = ("deepgram"
+                         if (app_module.settings.deepgram_api_key
+                             or os.environ.get("DEEPGRAM_API_KEY"))
+                         else "current_faster_whisper")
+    assert body["provider"] == expected_provider
     assert body["status"] == "configured"
-    assert body["off_host"] is True
+    assert body["off_host"] is (expected_provider == "deepgram")
     assert body["zero_retention"] is True
     assert body["fail_closed"] == app_module.settings.stt_fail_closed
     assert body["endpoint_class"] in ("global (no residency guarantee)",

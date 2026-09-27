@@ -58,16 +58,19 @@ jobs:
           set -e
           # Escalate when patterns derived from the REAL consultation fixtures
           # appear in tracked files. (Synthetic test content uses the Ofcom
-          # fictional range; these markers belong to actual patients.)
+          # fictional range; these markers belong to actual patients.) The
+          # workflow file itself is excluded — it necessarily contains the
+          # patterns it scans for.
+          SCOPE="-- . ':(exclude).github/workflows/ci.yml'"
           MATCHES=0
           for pat in "07742193218" "06/22/1972" "Helen White" "Prescott Road"; do
-            if git grep -lI "$pat" -- . ; then
+            if eval git grep -lI "$pat" "$SCOPE" ; then
               echo "::error::PHI marker pattern found in tracked files: $pat"
               MATCHES=1
             fi
           done
           # Malayalam transcript passages: the frozen real consultation phrase
-          if git grep -lI "എടുക്കുന്നുണ്ട്" -- . ; then
+          if eval git grep -lI "എടുക്കുന്നുണ്ട്" "$SCOPE" ; then
             echo "::error::real Malayalam transcript passage found in tracked files"
             MATCHES=1
           fi
