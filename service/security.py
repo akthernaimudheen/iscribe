@@ -26,14 +26,17 @@ SESSION_COOKIE = "iscribe_session"
 TOKEN_HEADER = "X-Access-Token"
 
 # Reachable without a session: liveness/readiness for the supervisor and the
-# tunnel, the login page and its endpoint, and the one stylesheet that page
-# needs. No clinical data is served from any of these.
+# tunnel, the login page and its endpoint, the one-time admin bootstrap
+# (gated by its own server-side code), and the stylesheets. No clinical data
+# is served from any of these.
 PUBLIC_PATHS = frozenset({
     "/api/health",
     "/api/ready",
     "/login",
     "/api/login",
+    "/api/auth/bootstrap",
     "/styles.css",
+    "/app.js",
     "/favicon.ico",
 })
 
@@ -48,26 +51,73 @@ def _signing_key(access_token: str) -> bytes:
 
 
 def issue_session(access_token: str, ttl_seconds: int) -> str:
+    """Anonymous (shared-key) session: expiry payload only.
+
+    Kept for the break-glass/bootstrap login; carries no identity.
+    """
     expiry = int(time.time()) + ttl_seconds
     payload = str(expiry).encode()
     mac = hmac.new(_signing_key(access_token), payload, hashlib.sha256).digest()
     return f"{base64.urlsafe_b64encode(payload).decode()}.{base64.urlsafe_b64encode(mac).decode()}"
 
 
-def verify_session(cookie_value: str, access_token: str) -> bool:
+def issue_user_session(access_token: str, email: str, role: str,
+                       hospital_id: str, ttl_seconds: int) -> str:
+    """Named session: '<expiry>|<email>|<role>|<hospital_id>', HMAC-signed.
+
+    The hospital id inside the session is the tenancy boundary: it is read
+    back server-side on every request and NEVER accepted from client data.
+    The signing key is server config, so a browser cannot mint or alter a
+    session (role escalation would need the server's signing key).
+    """
+    expiry = int(time.time()) + ttl_seconds
+    payload = f"{expiry}|{email}|{role}|{hospital_id}".encode()
+    mac = hmac.new(_signing_key(access_token), payload, hashlib.sha256).digest()
+    return f"{base64.urlsafe_b64encode(payload).decode()}.{base64.urlsafe_b64encode(mac).decode()}"
+
+
+def _verify(cookie_value: str, access_token: str) -> bytes | None:
+    """Return the raw payload when the signature and expiry are valid."""
     try:
         raw_payload, raw_mac = cookie_value.split(".", 1)
         payload = base64.urlsafe_b64decode(raw_payload)
         mac = base64.urlsafe_b64decode(raw_mac)
     except Exception:
-        return False
+        return None
     expected = hmac.new(_signing_key(access_token), payload, hashlib.sha256).digest()
     if not hmac.compare_digest(mac, expected):
-        return False
+        return None
     try:
-        return int(payload.decode()) > int(time.time())
+        expiry = int(payload.split(b"|", 1)[0])
     except ValueError:
-        return False
+        expiry = int(payload)
+    return payload if expiry > int(time.time()) else None
+
+
+def verify_session(cookie_value: str, access_token: str) -> bool:
+    return _verify(cookie_value, access_token) is not None
+
+
+def session_identity(cookie_value: str, access_token: str,
+                     default_hospital_id: str = "default") -> dict:
+    """Return {email, role, hospital_id, named} for a valid session cookie.
+
+    Legacy/shared-key sessions (expiry-only payload) are anonymous: they are
+    bound to this server's hospital and carry no identity for audit, and
+    clinical sign-off is refused for them (see CLINICAL_SIGNOFF_ROLES in
+    app.py). Returns {} for an invalid/expired cookie.
+    """
+    payload = _verify(cookie_value or "", access_token)
+    if payload is None:
+        return {}
+    parts = payload.decode(errors="replace").split("|")
+    if len(parts) != 4:
+        return {"email": None, "role": "SHARED", "display_name": None,
+                "hospital_id": default_hospital_id, "named": False}
+    _expiry, email, role, hospital_id = parts
+    return {"email": email or None, "role": role or "SHARED",
+            "display_name": None, "hospital_id": hospital_id or default_hospital_id,
+            "named": bool(email)}
 
 
 def token_matches(candidate: str, access_token: str) -> bool:
@@ -187,12 +237,21 @@ LOGIN_PAGE = """<!DOCTYPE html>
 <body class="login-body">
   <form class="login-card" method="POST" action="/api/login">
     <div class="login-brand"><span class="brand-mark">&#10010;</span> iScribe</div>
-    <p class="hint">Enter the access key issued for this trial.</p>
-    <input type="password" name="access_token" placeholder="Access key"
-           autocomplete="current-password" autofocus required>
+    <p class="hint">Sign in with your clinic account.</p>
+    <input type="email" name="email" placeholder="Email"
+           autocomplete="username" autofocus required>
+    <input type="password" name="password" placeholder="Password"
+           autocomplete="current-password" required>
     <button class="btn btn-primary" type="submit">Sign in</button>
     __ERROR__
-    <p class="login-foot">Clinical trial deployment. Do not share this key.</p>
+    <details class="login-alt"><summary>Sign in with an access key</summary>
+      <input type="password" name="access_token" placeholder="Access key"
+             autocomplete="off">
+      <p class="hint">Break-glass access: sessions issued this way cannot
+      approve or finalize clinical notes.</p>
+    </details>
+    <p class="login-foot">AI medical scribe — clinical trial deployment.
+    Every note requires clinician review.</p>
   </form>
 </body>
 </html>

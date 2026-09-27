@@ -85,6 +85,28 @@ $("#btn-signout")?.addEventListener("click", async () => {
   window.location.href = "/login";
 });
 
+/* Signed-in identity + demo banner (topbar). Fails silently when auth is
+   disabled — the badge simply stays hidden. */
+async function loadIdentity() {
+  try {
+    const me = await api("/me");
+    const badge = $("#user-badge");
+    if (badge && me.email) {
+      badge.textContent = `${me.email} · ${me.role}`;
+      badge.style.display = "";
+    }
+    if (me.demo_mode) {
+      const banner = $("#demo-banner");
+      if (banner) banner.style.display = "";
+    }
+    if (me.real_consultation_trial) {
+      const trial = $("#trial-banner");
+      if (trial) trial.style.display = "";
+    }
+  } catch {}
+}
+loadIdentity();
+
 /* ---------------- dashboard ---------------- */
 
 async function refreshDashboard() {

@@ -608,6 +608,32 @@ input[type="file"] { padding: 7px; background: var(--card); }
 }
 #review-audio-player { width: 100%; max-width: 480px; }
 
+/* ---------- signed-in identity + demo banner ---------- */
+.user-badge {
+  font-size: 12px;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+.demo-banner {
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 13.5px;
+}
+.trial-banner {
+  border: 1px solid #b3423a;
+  background: #fdf0ef;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 13.5px;
+}
+
 /* ---------- STT privacy boundary (dashboard admin panel) ---------- */
 .stt-boundary {
   margin: 14px 0;

@@ -1,6 +1,7 @@
 # iScribe — Deployment Guide
 
-Operational guide for the first hospital trial. Everything here has been run and
+Operational guide for the 30-day clinical demonstration trial
+(`https://scribe.prompttoshort.online`). Everything here has been run and
 measured on the trial host; the numbers in [Performance](#performance) are
 actual, not estimates.
 
@@ -13,6 +14,7 @@ actual, not estimates.
         │  HTTPS
         ▼
   Cloudflare Tunnel  ──── outbound-only connection, no inbound firewall rule
+        │                  (DNS: scribe.prompttoshort.online → tunnel)
         │  HTTP (loopback)
         ▼
   ┌──────────────────────────────────────────────┐
@@ -20,7 +22,8 @@ actual, not estimates.
   │                                              │
   │   FastAPI ── static UI (same origin)         │
   │      │                                       │
-  │      ├─ access gate (shared key → cookie)    │
+  │      ├─ accounts (email/password, roles,     │
+  │      │   clinic isolation) + break-glass key │
   │      │                                       │
   │      └─ ScribeEngine                         │
   │            ├─ faster-whisper  (local CPU)    │
@@ -84,6 +87,11 @@ never be committed.** Variable names only — values live solely in `.env`:
 | `ISCRIBE_AUDIO_RETENTION_HOURS` | Audio is deleted this long after the consultation. `0` disables. |
 | `ISCRIBE_MAX_CONCURRENT_JOBS` | Simultaneous transcriptions. Keep at `1` below 8 GB RAM. |
 | `ISCRIBE_STT_PROVIDER` | Production default `current_faster_whisper`. |
+| `ISCRIBE_BOOTSTRAP_ADMIN_CODE` | **Secret.** One-time code to create the first ADMIN account. |
+| `ISCRIBE_AUTH_RATE_LIMIT` / `_WINDOW_SECONDS` | Login attempts per IP per window (default 5 / 300s). |
+| `ISCRIBE_PROCESSING_RATE_LIMIT` / `_WINDOW_SECONDS` | Job submissions per user per window (default 20 / 3600s). |
+| `ISCRIBE_DEMO_MODE` | Show the guided demo walkthrough banner. |
+| `REAL_CONSULTATION_TRIAL` | Trial-mode banners for demonstrations on real recordings. |
 | `ISCRIBE_WHISPER_MODEL` | `tiny` / `base` / `small` / `medium`. |
 | `ISCRIBE_WHISPER_DEVICE` | `cpu` or `cuda`. |
 | `ISCRIBE_WHISPER_COMPUTE_TYPE` | `int8` on CPU. |
@@ -126,13 +134,113 @@ a stable hostname:
 powershell -File scripts/start-tunnel.ps1 -Named iscribe-trial
 ```
 
-### Container deployment (for moving to a dedicated server later)
+### Container deployment (trial path)
 
 The image bakes in the models, so it starts fully offline:
 
 ```bash
 docker compose up -d --build
 ```
+
+---
+
+## Public URL: scribe.prompttoshort.online
+
+One-time setup (Cloudflare account holding `prompttoshort.online`):
+
+```bash
+cloudflared tunnel login
+cloudflared tunnel create iscribe-trial
+cloudflared tunnel route dns iscribe-trial scribe.prompttoshort.online
+```
+
+`scripts/start-tunnel.ps1 -Named iscribe-trial` then serves the stable URL.
+HTTPS is terminated by Cloudflare; the app sits behind the tunnel on
+loopback only (`docker-compose.yml` binds `127.0.0.1:8123`), so no inbound
+port is ever open on the host.
+
+If the subdomain cannot be routed yet, the temporary fallback is
+`https://prompttoshort.online/scribe` via a Cloudflare Workers/redirect rule
+pointing at the same tunnel — the app itself needs no changes.
+
+---
+
+## CI/CD: Git is the source of truth
+
+```
+git push → GitHub Actions CI (tests + PHI/secret guard + docker build)
+         → deploy (docker compose pull/build on the host)
+         → health check (/api/health + /api/ready)
+```
+
+- **CI** (`.github/workflows/ci.yml`): full test suite on Python 3.12, a
+  PHI/secret guard that fails the build on real-consultation content
+  markers or tracked secrets/binaries, and a Docker build gate on `main`.
+- **Deploy from Git only** — no manual edits on the host. To update:
+
+  ```bash
+  git pull && docker compose up -d --build
+  ```
+
+  or the pull-and-restart one-liner in `scripts/`. A deployment is only
+  ever a function of a commit; rollback is a function of a tag.
+
+---
+
+## Rollback
+
+```bash
+# List releases
+git tag -l
+
+# Roll the deployment back to the known-good clinical baseline
+git checkout v0.1.0-real-consultation-trial && docker compose up -d --build
+
+# Or roll back to the previous main commit
+git checkout main~1 && docker compose up -d --build
+
+git checkout main   # resume development
+```
+
+The tag `v0.1.0-real-consultation-trial` is the frozen known-good baseline —
+never delete or re-point it. Consultation data lives in the
+`iscribe-data` volume / `ISCRIBE_DATA_DIR` and is untouched by any code
+rollback; restoring it means restoring that directory from backup.
+
+---
+
+## Cost envelope (30-day trial)
+
+| Item | Cost | Notes |
+|---|---|---|
+| Host (existing trial machine) | ₹0 | Docker + tunnel on current hardware |
+| Cloudflare Tunnel | ₹0 | Free plan; DNS + TLS included |
+| Domain | ₹0 | `prompttoshort.online` already owned |
+| GitHub Actions CI | ₹0 | Free tier covers this repo's usage |
+| Deepgram STT | usage-based | `nova-3-medical`; trial budget the clinic controls. Zero-retention mode (`mip_opt_out=true`) is ON by default. |
+
+Total fixed infrastructure: **₹0/month**. The only variable is STT usage,
+protected by: upload caps (`ISCRIBE_MAX_UPLOAD_MB`), per-user submission
+limits (`ISCRIBE_PROCESSING_RATE_LIMIT`), login rate limiting, job
+concurrency caps, and audio-duration limits in the recorder.
+
+If the trial later needs a rented VM (absence/sleep of the demo host
+becomes a problem): Fly.io shared-cpu-2x (2 GB) ≈ US$6/mo — **requires the
+developer's explicit approval before enabling**.
+
+---
+
+## Backup posture (honest statement)
+
+- Consultation data (SQLite DB + audio + logs) lives under
+  `ISCRIBE_DATA_DIR`. **The trial deployment's backup is the operator's
+  scheduled copy of that directory** — there is no automated off-site
+  backup in this ₹0 configuration, and none is claimed.
+- Recommended minimum: a nightly copy to a second disk/cloud folder
+  (`robocopy`/`rclone`), retained ≥ 30 days.
+- Audio is short-lived by design (approval-gated deletion); the durable
+  clinical content is the approved note, which clinicians export into the
+  clinic's own records workflow.
 
 ---
 
@@ -245,26 +353,43 @@ powershell -Command "Get-NetTCPConnection -State Listen -LocalPort 8123 | ForEac
 
 ## Known limitations
 
-1. **One shared access key, not per-clinician identity.** Everyone signs in with
-   the same key, so the logs cannot attribute a consultation to an individual.
-   Acceptable for a small named trial; put Cloudflare Access (or equivalent SSO)
-   in front of a named tunnel before widening it.
-2. **Quick tunnel URLs are ephemeral** and change on every restart. Use a named
+1. **Single clinic per deployment.** Accounts, roles and clinic isolation
+   are enforced per deployment (`ISCRIBE_HOSPITAL_ID`); multi-clinic SaaS
+   tenancy (many clinics, one server) is a future architecture, not this
+   trial. Per-clinician identity, ADMIN/DOCTOR/STAFF roles and the clinic
+   boundary ARE active in this release.
+2. **No email-password recovery flow.** A forgotten password is reset by an
+   ADMIN (`users.py` CLI/`set_password`) — there is no email service in the
+   ₹0 configuration. Magic-link/OAuth were deferred by design; the session
+   layer accepts named identities from any future issuer without endpoint
+   rewrites.
+3. **Rate limiting is per-process.** The sliding-window limiter is in-memory
+   (single-process by design); a multi-worker deployment would need a shared
+   store. This deployment is single-worker.
+4. **Quick tunnel URLs are ephemeral** and change on every restart. Use a named
    tunnel for the actual trial.
-3. **Single host, no redundancy.** If the machine sleeps, reboots or loses
+5. **Single host, no redundancy.** If the machine sleeps, reboots or loses
    network, iScribe is unavailable until restarted. Disable sleep on the host.
-4. **Speaker labelling is a heuristic.** Without pyannote (gated model, needs
+6. **Speaker labelling is a heuristic.** Without pyannote (gated model, needs
    `HF_TOKEN`), speakers are assigned by alternating turns and are wrong a
    significant fraction of the time. The UI reports `confidence: low`. Every
    note must be read against the transcript.
-5. **Template text.** Fields marked `[template]` are fixed boilerplate, not
+7. **Template text.** Fields marked `[template]` are fixed boilerplate, not
    extracted from the consultation. They appear in exports and must be corrected
    or removed during review.
-6. **Clinical extraction is keyword- and regex-based**, inherited from the
+8. **Clinical extraction is keyword- and regex-based**, inherited from the
    upstream project, with known weaknesses documented in `ANALYSIS.md` §4.
    It supports review; it does not replace it.
-7. **English only** in this release. The Malayalam pipeline
-   (IndicConformer + IndicTrans2) remains an isolated experiment and is not
-   registered as a provider.
-8. **Upstream licence.** The upstream repository declares no licence
+9. **Malayalam STT is experimental.** English production path: Deepgram
+   (zero-retention) or local faster-whisper. Malayalam runs through the
+   verified ASR-correction + semantic pipeline and is validated for
+   test/decision data only — not for unsupervised clinical use; the UI
+   labels it accordingly.
+10. **Upstream licence.** The upstream repository declares no licence
    (`ANALYSIS.md` §5). Resolve this before any use beyond a trial.
+11. **Real consultation fixtures are not in the repository** (patient data).
+    CI and fresh clones run with those tests skipped; the recording owner's
+    machine runs the full suite. The baseline tag was cut from a tree whose
+    git history never contained the recordings — but the OLD local history
+    (branch `local/phi-history-do-not-push`) DOES contain them and must
+    never be pushed.

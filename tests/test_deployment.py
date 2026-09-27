@@ -63,8 +63,19 @@ def client(app_module):
 
 @pytest.fixture()
 def auth_client(app_module):
+    """A signed-in named user (clinic doctor). The shared access key now only
+    issues an anonymous, clinically read-only session."""
     with TestClient(app_module.app) as c:
-        c.headers.update({"X-Access-Token": ACCESS_TOKEN})
+        app_module.rt.users.create(
+            "doctor@trial.test", "Trial-Doctor-Pass-1", "Dr. Trial", "DOCTOR",
+            app_module.settings.hospital_id)
+        from service.security import issue_user_session
+        c.cookies.set(
+            app_module.SESSION_COOKIE,
+            issue_user_session(app_module.settings.access_token,
+                               "doctor@trial.test", "DOCTOR",
+                               app_module.settings.hospital_id,
+                               3600))
         yield c
 
 

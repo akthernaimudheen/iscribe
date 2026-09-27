@@ -102,6 +102,29 @@ class Settings:
     max_upload_mb: int = 100
     max_concurrent_jobs: int = 1
 
+    # -- accounts (email/password, roles, clinic membership) ---------------
+    # Per-user identity for audit attribution and clinic isolation. The shared
+    # access token remains as a break-glass bootstrap login; it issues an
+    # anonymous session that cannot approve or export notes.
+    # Bootstrap: the first ADMIN account is created with this one-time code
+    # (POST /api/auth/bootstrap). Set it to a long random value; it grants
+    # exactly one admin creation when no admin exists yet.
+    bootstrap_admin_code: str = ""
+    # Rate limits (sliding window, per IP / per identity)
+    auth_rate_limit: int = 5            # login attempts per window
+    auth_rate_window_seconds: int = 300  # 5 minutes
+    processing_rate_limit: int = 20     # job submissions per window per user
+    processing_rate_window_seconds: int = 3600
+    # Demo mode: shows the guided demo checklist in the UI. Presentation only;
+    # it never changes authorization.
+    demo_mode: bool = False
+    # Real-consultation trial: turns on the trial-facing safeguards that a
+    # demonstration against REAL patient audio requires — the AI-draft notice,
+    # human-review requirement and consent notice are already hard behaviour;
+    # this flag surfaces them in the UI/API and documents the operating mode.
+    # It never WEAKENS anything: review-before-finalize is unconditional.
+    real_consultation_trial: bool = False
+
     # -- clinical audio retention (lifecycle-driven, favours deletion) ------
     # After explicit doctor approval the audio becomes deletion-eligible and is
     # deleted at approval + this many hours (0 = immediately at approval).
@@ -204,6 +227,13 @@ class Settings:
                 self.training_data_requires_hospital_authorization,
             "training_admin_token_set": bool(self.training_admin_token),
             "training_vault_dir": str(self.training_vault_dir),
+            "accounts_enabled": True,
+            "bootstrap_admin_code_set": bool(self.bootstrap_admin_code),
+            "auth_rate_limit": self.auth_rate_limit,
+            "auth_rate_window_seconds": self.auth_rate_window_seconds,
+            "processing_rate_limit": self.processing_rate_limit,
+            "demo_mode": self.demo_mode,
+            "real_consultation_trial": self.real_consultation_trial,
             "stt_provider": self.stt_provider or "<auto: deepgram then faster-whisper>",
             "stt_fail_closed": self.stt_fail_closed,
             "stt_policy_enforced": self.stt_policy_enforced,
@@ -279,6 +309,14 @@ def load_settings() -> Settings:
             "ISCRIBE_TRAINING_REQUIRES_HOSPITAL_AUTHORIZATION", True),
         training_admin_token=_env("ISCRIBE_TRAINING_ADMIN_TOKEN", "") or "",
         max_concurrent_jobs=_env_int("ISCRIBE_MAX_CONCURRENT_JOBS", 1),
+        bootstrap_admin_code=_env("ISCRIBE_BOOTSTRAP_ADMIN_CODE", "") or "",
+        auth_rate_limit=_env_int("ISCRIBE_AUTH_RATE_LIMIT", 5),
+        auth_rate_window_seconds=_env_int("ISCRIBE_AUTH_RATE_WINDOW_SECONDS", 300),
+        processing_rate_limit=_env_int("ISCRIBE_PROCESSING_RATE_LIMIT", 20),
+        processing_rate_window_seconds=_env_int(
+            "ISCRIBE_PROCESSING_RATE_WINDOW_SECONDS", 3600),
+        demo_mode=_env_bool("ISCRIBE_DEMO_MODE", False),
+        real_consultation_trial=_env_bool("REAL_CONSULTATION_TRIAL", False),
         stt_provider=_env("ISCRIBE_STT_PROVIDER", "") or "",
         language=_env("ISCRIBE_LANGUAGE", "en"),
         deepgram_api_key=_env("DEEPGRAM_API_KEY", "") or "",

@@ -78,11 +78,14 @@ def _engine_build() -> str:
 import scribe_engine  # noqa: E402  (build id needs the package object)
 ENGINE_BUILD = _engine_build()
 from .logging_config import Timer, configure_logging, job_event
+from .ratelimit import RateLimiter
 from .security import (
     SESSION_COOKIE,
     AccessControlMiddleware,
     SecurityHeadersMiddleware,
     issue_session,
+    issue_user_session,
+    session_identity,
     login_page,
     token_matches,
     issue_download_token,
@@ -91,6 +94,7 @@ from .security import (
 )
 from .stt_boundary import stt_boundary_view, stt_policy as _effective_stt_policy
 from .store import ConsultationStore
+from .users import CLINICAL_SIGNOFF_ROLES, ROLES, UserStore
 
 settings = load_settings()
 settings.ensure_dirs()
@@ -109,6 +113,9 @@ class Runtime:
     def __init__(self) -> None:
         self.store: ConsultationStore | None = None
         self.retention: RetentionManager | None = None
+        self.users: UserStore | None = None
+        self.auth_limiter: RateLimiter | None = None
+        self.processing_limiter: RateLimiter | None = None
         self.models_ready = False
         self.model_error: str | None = None
         self.model_load_seconds: float | None = None
@@ -135,6 +142,67 @@ def retention() -> RetentionManager:
     if rt.retention is None:  # pragma: no cover - only reachable outside lifespan
         raise RuntimeError("Retention manager is not initialised")
     return rt.retention
+
+
+def users() -> UserStore:
+    if rt.users is None:  # pragma: no cover - only reachable outside lifespan
+        raise RuntimeError("User store is not initialised")
+    return rt.users
+
+
+# --------------------------------------------------------------------------
+# Session identity + tenancy/authorization helpers
+# --------------------------------------------------------------------------
+def _current_identity(request: Request) -> dict:
+    """Resolve the session identity for this request.
+
+    The hospital_id ALWAYS comes from the signed session (or, for anonymous
+    shared-key sessions, from the server configuration) — never from any
+    client-supplied field. This is the clinic-isolation boundary.
+    """
+    cookie = request.cookies.get(SESSION_COOKIE, "")
+    ident = session_identity(cookie, settings.access_token,
+                             default_hospital_id=settings.hospital_id)
+    if ident:
+        return ident
+    # Fall back to the X-Access-Token header path (API/scripts), same tenancy
+    # rule: anonymous, server-config hospital.
+    if token_matches(request.headers.get("X-Access-Token", ""),
+                     settings.access_token):
+        return {"email": None, "role": "SHARED", "display_name": None,
+                "hospital_id": settings.hospital_id, "named": False}
+    return {"email": None, "role": "SHARED", "display_name": None,
+            "hospital_id": settings.hospital_id, "named": False}
+
+
+def _require_named_user(request: Request) -> dict:
+    """Identity that may act clinically: a signed-in user account."""
+    ident = _current_identity(request)
+    if not ident.get("named"):
+        raise HTTPException(
+            403, "Sign in with a user account to perform this action "
+                 "(shared-key sessions cannot modify clinical records)")
+    return ident
+
+
+def _require_role(request: Request, *roles: str) -> dict:
+    ident = _require_named_user(request)
+    if ident["role"] not in roles:
+        raise HTTPException(403, "Your role is not permitted to perform this action")
+    return ident
+
+
+def _own_clinic(request: Request, record: dict) -> dict:
+    """Tenant-isolation gate: the record must belong to the session's clinic.
+
+    Every clinical-data endpoint resolves its record through this check, so a
+    consultation from another clinic is indistinguishable from a missing one.
+    """
+    ident = _current_identity(request)
+    if record.get("hospital_id") and \
+            record["hospital_id"] != ident["hospital_id"]:
+        raise HTTPException(404, "Consultation not found")
+    return ident
 
 
 def build_engine() -> ScribeEngine:
@@ -290,6 +358,12 @@ async def lifespan(app: FastAPI):
     settings.training_vault_dir.mkdir(parents=True, exist_ok=True)
     rt.store = ConsultationStore(settings.db_path,
                                  hospital_id=settings.hospital_id)
+    rt.users = UserStore(settings.db_path)
+    rt.auth_limiter = RateLimiter(settings.auth_rate_limit,
+                                  settings.auth_rate_window_seconds)
+    rt.processing_limiter = RateLimiter(
+        settings.processing_rate_limit,
+        settings.processing_rate_window_seconds)
     rt.retention = RetentionManager(settings, rt.store, logger=logger)
     _recover_stuck_jobs()
 
@@ -410,10 +484,14 @@ def _public(record: dict) -> dict:
     return out
 
 
-def _get(cid: str) -> dict:
+def _get(cid: str, request: Request | None = None) -> dict:
+    """Fetch a consultation; when a request is supplied, enforce clinic
+    isolation (a record from another clinic is a 404, never a leak)."""
     record = store().get(cid)
     if not record:
         raise HTTPException(404, "Consultation not found")
+    if request is not None:
+        _own_clinic(request, record)
     # Lifecycle/tenancy live in real columns (the retention layer queries
     # them); surface the API-safe ones on the record for the UI.
     lifecycle = store().get_audio_lifecycle(cid) or {}
@@ -519,27 +597,79 @@ def login_form():
     return HTMLResponse(login_page())
 
 
-@app.post("/api/login")
-def login(request: Request, access_token: str = Form(default="")):
-    if not settings.auth_required:
-        return RedirectResponse("/", status_code=303)
-    client = request.client.host if request.client else "unknown"
-    if not token_matches(access_token, settings.access_token):
-        job_event(logger, "login_failed", source_ip=client)
-        return HTMLResponse(login_page("Incorrect access key."), status_code=401)
-
-    job_event(logger, "login_ok", source_ip=client)
-    response = RedirectResponse("/", status_code=303)
+def _set_session_cookie(response, token_value: str) -> None:
     response.set_cookie(
         SESSION_COOKIE,
-        issue_session(settings.access_token, settings.session_hours * 3600),
+        token_value,
         max_age=settings.session_hours * 3600,
         httponly=True,
         samesite="strict",
         secure=settings.cookie_secure,
         path="/",
     )
-    return response
+
+
+@app.post("/api/login")
+def login(request: Request, email: str = Form(default=""),
+          password: str = Form(default=""),
+          access_token: str = Form(default="")):
+    """Dual-mode sign-in: a named user account (email/password) or the
+    break-glass shared access key (anonymous, clinically read-only).
+
+    Rate-limited per source IP BEFORE any credential work.
+    """
+    if not settings.auth_required:
+        return RedirectResponse("/", status_code=303)
+    client = request.client.host if request.client else "unknown"
+    limiter = rt.auth_limiter
+    if limiter is not None and not limiter.allow(f"login:{client}"):
+        retry = int(limiter.retry_after(f"login:{client}")) or 60
+        job_event(logger, "login_rate_limited", source_ip=client)
+        return HTMLResponse(
+            login_page(f"Too many sign-in attempts. Try again in {retry}s."),
+            status_code=429, headers={"Retry-After": str(retry)})
+
+    # Path 1: named user account.
+    if email.strip():
+        user = users().authenticate(email, password)
+        if user is None:
+            job_event(logger, "login_failed", source_ip=client, method="password")
+            return HTMLResponse(login_page("Incorrect email or password."),
+                                status_code=401)
+        job_event(logger, "login_ok", source_ip=client, method="password",
+                  user=user["email"], role=user["role"])
+        store().append_audit("user_login", hospital_id=user["hospital_id"],
+                             actor=user["email"],
+                             detail={"method": "password"})
+        response = RedirectResponse("/", status_code=303)
+        _set_session_cookie(response, issue_user_session(
+            settings.access_token, user["email"], user["role"],
+            user["hospital_id"], settings.session_hours * 3600))
+        return response
+
+    # Path 2: break-glass shared key → anonymous session (no clinical writes).
+    if access_token and token_matches(access_token, settings.access_token):
+        job_event(logger, "login_ok", source_ip=client, method="shared_key")
+        store().append_audit("user_login", hospital_id=settings.hospital_id,
+                             detail={"method": "shared_key"})
+        response = RedirectResponse("/", status_code=303)
+        _set_session_cookie(response, issue_session(
+            settings.access_token, settings.session_hours * 3600))
+        return response
+
+    job_event(logger, "login_failed", source_ip=client, method="none")
+    return HTMLResponse(login_page("Enter your email and password."),
+                        status_code=401)
+
+
+@app.get("/api/me")
+def me(request: Request):
+    """The signed-in identity for the UI topbar. No secrets, no tokens."""
+    ident = _current_identity(request)
+    return {"email": ident.get("email"), "role": ident.get("role"),
+            "named": bool(ident.get("named")),
+            "demo_mode": settings.demo_mode,
+            "real_consultation_trial": settings.real_consultation_trial}
 
 
 @app.post("/api/logout")
@@ -547,6 +677,105 @@ def logout():
     response = JSONResponse({"status": "signed_out"})
     response.delete_cookie(SESSION_COOKIE, path="/")
     return response
+
+
+# --------------------------------------------------------------------------
+# Account administration (bootstrap + user management)
+# --------------------------------------------------------------------------
+class BootstrapAdminRequest(BaseModel):
+    email: str = Field(max_length=254)
+    password: str = Field(min_length=1, max_length=256)
+    display_name: str = Field(max_length=120)
+    bootstrap_code: str = Field(max_length=256)
+
+
+class UserCreateRequest(BaseModel):
+    email: str = Field(max_length=254)
+    password: str = Field(min_length=1, max_length=256)
+    display_name: str = Field(max_length=120)
+    role: str
+
+
+class UserDisabledPatch(BaseModel):
+    disabled: bool
+
+
+def _public_user(u: dict) -> dict:
+    """Account fields safe to return; never the password hash."""
+    return {k: u.get(k) for k in ("email", "display_name", "role",
+                                  "hospital_id", "created_at", "disabled")}
+
+
+@app.post("/api/auth/bootstrap")
+def bootstrap_admin(body: BootstrapAdminRequest, request: Request):
+    """Create the FIRST admin account, exactly once.
+
+    Gated by ISCRIBE_BOOTSTRAP_ADMIN_CODE (server-side secret). Refuses when
+    any admin already exists — this is a bootstrap, not a backdoor.
+    """
+    if not settings.auth_required:
+        raise HTTPException(403, "Accounts are managed by the deployment")
+    if not settings.bootstrap_admin_code:
+        raise HTTPException(
+            403, "Bootstrap is disabled: set ISCRIBE_BOOTSTRAP_ADMIN_CODE "
+                 "on the server to create the first admin")
+    if not token_matches(body.bootstrap_code, settings.bootstrap_admin_code):
+        job_event(logger, "bootstrap_rejected",
+                  source_ip=request.client.host if request.client else "unknown")
+        raise HTTPException(403, "Invalid bootstrap code")
+    if any(u["role"] == "ADMIN" for u in users().list()):
+        raise HTTPException(409, "An administrator account already exists")
+    try:
+        user = users().create(body.email, body.password, body.display_name,
+                              "ADMIN", settings.hospital_id)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    store().append_audit("user_created", hospital_id=settings.hospital_id,
+                         actor=user["email"],
+                         detail={"role": "ADMIN", "bootstrap": True})
+    job_event(logger, "bootstrap_admin_created", user=user["email"])
+    return _public_user(user)
+
+
+@app.get("/api/users")
+def list_users(request: Request):
+    _require_role(request, "ADMIN")
+    return [_public_user(u) for u in users().list()]
+
+
+@app.post("/api/users")
+def create_user(body: UserCreateRequest, request: Request):
+    """ADMIN-only account creation, bound to the admin's own clinic."""
+    admin = _require_role(request, "ADMIN")
+    if body.role not in ROLES:
+        raise HTTPException(422, f"Role must be one of: {', '.join(ROLES)}")
+    try:
+        user = users().create(body.email, body.password, body.display_name,
+                              body.role, admin["hospital_id"],
+                              created_by=admin["email"])
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    store().append_audit("user_created", hospital_id=admin["hospital_id"],
+                         actor=admin["email"],
+                         detail={"new_user": user["email"], "role": user["role"]})
+    return _public_user(user)
+
+
+@app.patch("/api/users/{email}")
+def set_user_disabled(email: str, body: UserDisabledPatch, request: Request):
+    """Enable/disable an account (ADMIN only, never your own account)."""
+    admin = _require_role(request, "ADMIN")
+    target = (email or "").strip().lower()
+    if target == admin["email"]:
+        raise HTTPException(409, "You cannot disable your own account")
+    user = users().get(target)
+    if not user or user["hospital_id"] != admin["hospital_id"]:
+        raise HTTPException(404, "User not found")
+    updated = users().set_disabled(target, body.disabled, by=admin["email"])
+    store().append_audit("user_status_changed", hospital_id=admin["hospital_id"],
+                         actor=admin["email"],
+                         detail={"target": target, "disabled": body.disabled})
+    return _public_user(updated)
 
 
 # --------------------------------------------------------------------------
@@ -604,7 +833,8 @@ def ready():
 # Consultations
 # --------------------------------------------------------------------------
 @app.post("/api/consultations")
-def create_consultation(body: ConsultationCreate):
+def create_consultation(body: ConsultationCreate, request: Request):
+    ident = _current_identity(request)
     cid = uuid.uuid4().hex[:12]
     record = {
         "id": cid,
@@ -624,29 +854,39 @@ def create_consultation(body: ConsultationCreate):
         "reviewed": False,
         "completed_at": None,
         "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-        # Tenancy is server-assigned: a client can never name its hospital.
-        "hospital_id": settings.hospital_id,
+        # Tenancy is server-assigned from the session identity: a client can
+        # never name its hospital (request bodies are never trusted for it).
+        "hospital_id": ident["hospital_id"],
+        "created_by": ident.get("email"),
     }
     store().create(record)
     store().append_audit("consultation_created", cid=cid,
-                         hospital_id=settings.hospital_id)
+                         hospital_id=record["hospital_id"],
+                         actor=ident.get("email"))
     job_event(logger, "consultation_created", cid=cid)
     return _public(record)
 
 
 @app.get("/api/consultations")
-def list_consultations():
-    return [_public(r) for r in store().list()]
+def list_consultations(request: Request):
+    """Only this session's clinic's consultations are visible — the
+    clinic-isolation rule applied to the list, not just detail reads."""
+    ident = _current_identity(request)
+    mine = [r for r in store().list()
+            if (r.get("hospital_id") or settings.hospital_id) == ident["hospital_id"]]
+    return [_public(r) for r in mine]
 
 
 @app.get("/api/consultations/{cid}")
-def get_consultation(cid: str):
-    return _public(_get(cid))
+def get_consultation(cid: str, request: Request):
+    return _public(_get(cid, request))
 
 
 @app.post("/api/consultations/{cid}/audio")
-async def upload_audio(cid: str, file: UploadFile = File(...)):
-    _get(cid)
+async def upload_audio(request: Request, cid: str,
+                       file: UploadFile = File(...)):
+    ident = _current_identity(request)
+    _get(cid, request)
 
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in SUPPORTED_EXTENSIONS:
@@ -700,10 +940,10 @@ async def upload_audio(cid: str, file: UploadFile = File(...)):
     # the audit trail — ids and hashes only.
     store().set_audio_lifecycle(cid, audio_sha256=sha256_of(final_path),
                                 audio_state="UPLOADED")
-    retention().audit("audio_uploaded", cid, bytes=written, ext=suffix,
-                      filename=final_path.name)
+    retention().audit("audio_uploaded", cid, actor=ident.get("email"),
+                      bytes=written, ext=suffix, filename=final_path.name)
     job_event(logger, "audio_uploaded", cid=cid, bytes=written, ext=suffix)
-    return _public(_get(cid))
+    return _public(_get(cid, request))
 
 
 def _doc_worker_loop() -> None:
@@ -909,9 +1149,21 @@ def _run_job(cid: str, audio_path: str, language: str = "") -> None:
 
 
 @app.post("/api/consultations/{cid}/process")
-def process(cid: str):
-    """Queue processing; poll GET /api/consultations/{cid} for real stage progress."""
-    record = _get(cid)
+def process(cid: str, request: Request):
+    """Queue processing; poll GET /api/consultations/{cid} for real stage progress.
+
+    Rate-limited per identity: STT is usage-based, so job submission is a
+    metered action even for authenticated sessions.
+    """
+    ident = _current_identity(request)
+    limiter = rt.processing_limiter
+    if limiter is not None:
+        key = f"process:{ident.get('email') or request.client.host if request.client else 'anon'}"
+        if not limiter.allow(key):
+            retry = int(limiter.retry_after(key)) or 60
+            raise HTTPException(429, f"Too many processing requests; retry in {retry}s",
+                                headers={"Retry-After": str(retry)})
+    record = _get(cid, request)
     if record["status"] in ("processing", "queued"):
         return _public(record)
     if not record.get("audio_file"):
@@ -932,24 +1184,24 @@ def process(cid: str):
     job = store().create_job(cid, recording_key)
     rt.job_queue.put((job["job_id"], cid, record["audio_file"],
                       record.get("language") or settings.language))
-    retention().audit("transcription_requested", cid)
+    retention().audit("transcription_requested", cid, actor=ident.get("email"))
     job_event(logger, "doc_job_queued", cid=cid, job_id=job["job_id"],
               queue_depth=rt.job_queue.qsize())
-    return JSONResponse(status_code=202, content=_public(_get(cid)) | {
+    return JSONResponse(status_code=202, content=_public(_get(cid, request)) | {
         "job_id": job["job_id"],
         "job_status": job["status"],
     })
 
 
 @app.post("/api/consultations/{cid}/jobs/{job_id}/retry")
-def retry_job(cid: str, job_id: str):
+def retry_job(cid: str, job_id: str, request: Request):
     """Retry a FAILED documentation job.
 
     Safe by construction: the failed row keeps its terminal state and a fresh
     queued row is created; the clinical pipeline re-runs in full, so the note
     can only ever be produced by a validated pass.
     """
-    record = _get(cid)
+    record = _get(cid, request)
     job = store().get_job(job_id)
     if not job or job["consultation_id"] != cid:
         raise HTTPException(404, "Job not found")
@@ -966,18 +1218,18 @@ def retry_job(cid: str, job_id: str):
                       record.get("language") or settings.language))
     job_event(logger, "doc_job_retried", cid=cid, job_id=new_job["job_id"],
               previous_job=job_id)
-    return JSONResponse(status_code=202, content=_public(_get(cid)) | {
+    return JSONResponse(status_code=202, content=_public(_get(cid, request)) | {
         "job_id": new_job["job_id"], "job_status": new_job["status"]})
 
 
 @app.post("/api/consultations/{cid}/text")
-async def process_text(cid: str, body: TextProcessRequest):
+async def process_text(cid: str, body: TextProcessRequest, request: Request):
     """Plain-text flow: process a Doctor:/Patient: transcript directly.
 
     spaCy runs for several seconds, so it goes to a worker thread rather than
     blocking the event loop (and therefore every other clinician's polling).
     """
-    record = _get(cid)
+    record = _get(cid, request)
     if not body.transcript.strip():
         raise HTTPException(400, "Transcript is empty")
 
@@ -1000,12 +1252,13 @@ async def process_text(cid: str, body: TextProcessRequest):
     store().apply(cid, mutate)
     job_event(logger, "text_job_completed", cid=cid, elapsed_s=timer.seconds,
               chars=len(body.transcript))
-    return _public(_get(cid))
+    return _public(_get(cid, request))
 
 
 @app.patch("/api/consultations/{cid}/review")
-def review(cid: str, body: ReviewPatch):
-    record = _get(cid)
+def review(cid: str, body: ReviewPatch, request: Request):
+    ident = _require_named_user(request)
+    record = _get(cid, request)
     if not record.get("result"):
         raise HTTPException(400, "Nothing to review yet")
 
@@ -1028,9 +1281,10 @@ def review(cid: str, body: ReviewPatch):
     store().set_audio_lifecycle(cid, note_status="REVIEWED")
     retention().mark_review_started(cid)
     store().append_audit("note_edited", cid=cid,
-                         hospital_id=record.get("hospital_id"))
+                         hospital_id=record.get("hospital_id"),
+                         actor=ident.get("email"))
     job_event(logger, "consultation_reviewed", cid=cid)
-    return _public(_get(cid))
+    return _public(_get(cid, request))
 
 
 class ApprovalRequest(BaseModel):
@@ -1040,7 +1294,7 @@ class ApprovalRequest(BaseModel):
 
 
 @app.post("/api/consultations/{cid}/approve")
-def approve(cid: str, body: ApprovalRequest | None = None):
+def approve(cid: str, body: ApprovalRequest | None = None, request: Request = None):
     """Explicit doctor approval of the reviewed note.
 
     This is the retention-relevant clinical event: it closes the review
@@ -1049,7 +1303,10 @@ def approve(cid: str, body: ApprovalRequest | None = None):
     the audio eligible for the (separately authorized) training path.
     Approval is refused while the note is still an unreviewed draft.
     """
-    record = _get(cid)
+    # Clinical sign-off requires a named, role-authorized identity: the
+    # break-glass shared-key session cannot approve notes.
+    ident = _require_role(request, *CLINICAL_SIGNOFF_ROLES)
+    record = _get(cid, request)
     if not record.get("result"):
         raise HTTPException(400, "Process a consultation first")
     if store().has_pending_job(cid):
@@ -1058,14 +1315,20 @@ def approve(cid: str, body: ApprovalRequest | None = None):
     if (lifecycle.get("note_status") or "DRAFT") == "DRAFT":
         raise HTTPException(409, "Review the note before approving it")
     retention().mark_review_started(cid)
-    actor = (body.approved_by if body and body.approved_by else None)
+    # A verified session identity outranks any client-supplied attribution.
+    actor = ident.get("email") or (body.approved_by if body else None)
     retention().approve(cid, actor=actor)
-    return _public(_get(cid))
+    store().append_audit("note_approved", cid=cid,
+                         hospital_id=record.get("hospital_id"),
+                         actor=ident.get("email"))
+    return _public(_get(cid, request))
 
 
 @app.post("/api/consultations/{cid}/complete")
-def complete(cid: str):
-    record = _get(cid)
+def complete(cid: str, request: Request):
+    """Completing IS the explicit doctor sign-off — same role gate as approve."""
+    ident = _require_role(request, *CLINICAL_SIGNOFF_ROLES)
+    record = _get(cid, request)
     if not record.get("result"):
         raise HTTPException(400, "Process a consultation first")
     if store().has_pending_job(cid):
@@ -1084,26 +1347,33 @@ def complete(cid: str):
     # Completing the consultation IS the explicit doctor sign-off: the note
     # transitions to APPROVED and the retention policy is evaluated now.
     retention().mark_review_started(cid)
-    retention().approve(cid, actor=record.get("doctor") or None)
+    retention().approve(cid, actor=ident.get("email") or record.get("doctor"))
+    store().append_audit("note_approved", cid=cid,
+                         hospital_id=record.get("hospital_id"),
+                         actor=ident.get("email"),
+                         detail={"via": "complete"})
     job_event(logger, "consultation_completed", cid=cid, reviewed=record.get("reviewed", False))
-    return _public(_get(cid))
+    return _public(_get(cid, request))
 
 
 @app.get("/api/consultations/{cid}/export")
-def export(cid: str):
+def export(cid: str, request: Request):
     """Export the APPROVED note for the hospital's EHR workflow.
 
     The primary workflow is review → approve → download. The export carries
     the approved note only: no raw audio reference, no draft AI reasoning,
     no internal validation/debug sections. Exporting an unapproved note is a
-    workflow error, not a policy footnote.
+    workflow error, not a policy footnote. Export is clinical sign-off: named,
+    role-authorized sessions only.
     """
-    record = _get(cid)
+    ident = _require_role(request, *CLINICAL_SIGNOFF_ROLES)
+    record = _get(cid, request)
     lifecycle = store().get_audio_lifecycle(cid) or {}
     if (lifecycle.get("note_status") or "DRAFT") != "APPROVED":
         raise HTTPException(409, "Approve the note before exporting it")
     store().append_audit("note_exported", cid=cid,
-                         hospital_id=record.get("hospital_id"))
+                         hospital_id=record.get("hospital_id"),
+                         actor=ident.get("email"))
     job_event(logger, "consultation_exported", cid=cid)
     return PlainTextResponse(
         _export_text(record, approved_only=True),
@@ -1118,14 +1388,14 @@ def export(cid: str):
 # Audio access: session + short-lived consultation-bound token.
 # --------------------------------------------------------------------------
 @app.post("/api/consultations/{cid}/audio-link")
-def audio_link(cid: str):
+def audio_link(cid: str, request: Request):
     """Issue a short-lived download URL for this consultation's audio.
 
     Raw audio is NOT on a static mount and has no permanent URL: the link is
     signed, bound to this cid, and expires (15 minutes). The UI calls this
     when the doctor wants to listen back during review.
     """
-    record = _get(cid)
+    record = _get(cid, request)
     if not record.get("audio_file") or record.get("audio_purged"):
         raise HTTPException(404, "Audio is not available")
     if not Path(record["audio_file"]).exists():
@@ -1138,10 +1408,11 @@ def audio_link(cid: str):
 
 
 @app.get("/api/consultations/{cid}/audio")
-def get_audio(cid: str, expires: str = ""):
+def get_audio(cid: str, request: Request, expires: str = ""):
     """Serve raw audio only to a session that ALSO holds a valid, unexpired,
     cid-bound token. Fails closed on any absence or mismatch."""
-    record = _get(cid)
+    ident = _current_identity(request)
+    record = _get(cid, request)
     if not record.get("audio_file") or record.get("audio_purged"):
         raise HTTPException(404, "Audio is not available")
     if not download_token_valid(expires, settings.access_token, cid):
@@ -1150,7 +1421,8 @@ def get_audio(cid: str, expires: str = ""):
     if not path.exists():
         raise HTTPException(404, "Audio is not available")
     store().append_audit("audio_accessed", cid=cid,
-                         hospital_id=record.get("hospital_id"))
+                         hospital_id=record.get("hospital_id"),
+                         actor=ident.get("email"))
     return FileResponse(
         path,
         media_type="application/octet-stream",
@@ -1241,11 +1513,13 @@ def training_authorization(request: Request, body: TrainingAuthorizationRequest)
 
 
 @app.post("/api/consultations/{cid}/training-selection")
-def training_selection(cid: str, body: TrainingSelectionRequest):
+def training_selection(cid: str, body: TrainingSelectionRequest,
+                       request: Request):
     """Explicitly select an APPROVED consultation's audio for the training
     dataset. Every guard fails closed; the clinical copy is moved (not copied)
     into the authorized vault namespace with its own retention deadline."""
-    record = _get(cid)
+    ident = _require_named_user(request)
+    record = _get(cid, request)
     if record.get("audio_state") not in ("DOCTOR_APPROVED",
                                           "SCHEDULED_FOR_DELETION") \
             or record.get("audio_purged"):
@@ -1257,7 +1531,7 @@ def training_selection(cid: str, body: TrainingSelectionRequest):
         raise HTTPException(404, "Audio is not available")
     try:
         rec = retention().create_training_copy(
-            cid, actor=record.get("doctor") or "shared-session",
+            cid, actor=ident.get("email") or record.get("doctor") or "shared-session",
             selection_reason=body.reason)
     except PermissionError as exc:
         raise HTTPException(403, str(exc))

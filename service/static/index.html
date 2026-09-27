@@ -26,7 +26,8 @@
   </nav>
   <div class="topbar-actions">
     <span class="topbar-lang">English — supported</span>
-    <span class="topbar-note">Trial — every note requires clinician review</span>
+    <span class="topbar-note">AI draft — clinician review required</span>
+    <span id="user-badge" class="user-badge" style="display:none"></span>
     <button class="btn btn-ghost btn-small" id="btn-signout">Sign out</button>
   </div>
 </header>
@@ -42,6 +43,17 @@
     <p class="hint" id="demo-notice">Identify patients by hospital record number only — do not type patient names into this field.</p>
     <p class="hint"><b>English is the supported language.</b> Malayalam can be selected per consultation but is <b>experimental and not validated for clinical use</b> — test data only.</p>
     <p id="ready-chip" class="ready-chip">Checking transcription service…</p>
+    <div id="demo-banner" class="demo-banner" style="display:none">
+      <b>Demo mode.</b> Guided walkthrough: create a consultation → record or
+      paste a transcript → review the AI draft → edit → finalize. Every note
+      is an AI-generated DRAFT until a clinician reviews and approves it.
+    </div>
+    <div id="trial-banner" class="trial-banner" style="display:none">
+      <b>Real-consultation trial.</b> This deployment processes real clinical
+      recordings. Transcripts and notes are AI-generated DRAFTS for clinician
+      review — never independently verified records. Audio is deleted per the
+      clinic's retention policy; usage is audited.
+    </div>
     <details id="stt-boundary-panel" class="stt-boundary">
       <summary>STT Privacy Boundary</summary>
       <div id="stt-boundary-body" class="stt-boundary-body">
