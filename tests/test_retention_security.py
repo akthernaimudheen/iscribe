@@ -1168,9 +1168,18 @@ def test_43b_policy_region_still_binds_off_host_providers():
     check_policy(provider, {"region": "global"})  # no raise
 
 
-def test_44_pipeline_preflight_refuses_to_send_audio(app_module, auth_client):
+def test_44_pipeline_preflight_refuses_to_send_audio(app_module, auth_client,
+                                                     monkeypatch):
     """Scenario D/E end-to-end: a policy violation must stop the job before
     any provider call; source audio untouched; no partial note; audited."""
+    # Pin the resolver to an off-host provider whose declared location
+    # ('global') violates the 'in' requirement. Ambient resolution would make
+    # this test environment-dependent (a local Deepgram key selects Deepgram;
+    # CI without a key selects the on-host engine, which the policy does not
+    # region-check at all).
+    monkeypatch.setattr(
+        "scribe_engine.pipeline.resolve_production_provider",
+        lambda *a, **k: (_FakeOffHostProvider(), "test"))
     cid = _make_record_with_audio(app_module, auth_client)
     audio_file = app_module.store().get(cid)["audio_file"]
     job = app_module.store().create_job(cid, Path(audio_file).name)
@@ -1427,6 +1436,13 @@ def test_51_policy_blocked_job_never_calls_provider(app_module, auth_client,
     probe.stt_fail_closed = False
     probe.on_stage = None
     probe._stages = []
+    # Same determinism pin as test_44: without it, a CI runner with no
+    # Deepgram key resolves the on-host engine, which the region check does
+    # not constrain — the refusal would never fire and the stub audio would
+    # reach a real decoder instead.
+    monkeypatch.setattr(
+        "scribe_engine.pipeline.resolve_production_provider",
+        lambda *a, **k: (_Sending(), "test"))
     audio = app_module.settings.upload_dir / "never-send.mp3"
     audio.parent.mkdir(parents=True, exist_ok=True)
     audio.write_bytes(b"x")
