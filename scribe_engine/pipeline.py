@@ -25,6 +25,7 @@ from pathlib import Path
 from . import audio as audio_mod
 from . import clinical, clinical_documentation, clinical_facts, diarization, prescription as prescription_mod
 from . import note_v2
+from .field_projection import project_structured_fields
 from .stt import CURRENT_PROVIDER_ID, get_provider, resolve_production_provider
 from .stt.base import SpeechLanguageUnavailable
 from .stt.policy import STTPolicyBlocked, check_policy
@@ -273,6 +274,31 @@ class ScribeEngine:
                 entities=normalized.get("entities", []),
                 corrected_text=corrected_text)
             clinical_note_v2 = note_v2.render_clinical_note(clinical_facts_v2)
+            # SINGLE-SOURCE FIELDS: the editable review fields are a
+            # deterministic projection of the SAME fact graph that produced
+            # the canonical note — not an independent extraction. The legacy
+            # extractor's keyword/regex output (its 'duration' regex matched
+            # "buying tight" on the referral-letter case) is discarded from
+            # the clinical dataflow; the extractor itself is retained below
+            # only as an audit/debug artifact.
+            projection = project_structured_fields(clinical_facts_v2)
+            note["fields"] = projection["clinical_note_fields"]
+            note["fields_source"] = "clinical_facts_v2"
+            note["text"] = clinical.render_clinical_note_text(note["fields"])
+            rx["fields"] = projection["prescription_fields"]
+            rx["fields_source"] = "clinical_facts_v2"
+            rx["text"] = prescription_mod.render_prescription_text(rx["fields"])
+            note["warnings"] = projection["warnings"]
+            note["confidence"] = projection["confidence"]
+            note["confidence_note"] = projection["confidence_note"]
+            # Clinical Intelligence V2 (document context -> section-aware,
+            # evidence-grounded typed facts -> deterministic note + fail-closed
+            # validator), mirroring the text flow.
+            clinical_facts_v2 = clinical_facts.build_clinical_facts(
+                transcript_text, labeled["turns"], roles_known=roles_known,
+                entities=normalized.get("entities", []),
+                corrected_text=corrected_text)
+            clinical_note_v2 = note_v2.render_clinical_note(clinical_facts_v2)
             self._stage_done(
                 "clinical",
                 f"symptoms={len(structured['symptoms'])}, "
@@ -370,6 +396,18 @@ class ScribeEngine:
             transcript_text, labeled["turns"], roles_known=roles_known,
             entities=normalized.get("entities", []), corrected_text=None)
         clinical_note_v2 = note_v2.render_clinical_note(clinical_facts_v2)
+        # SINGLE-SOURCE FIELDS (text flow): same projection as the audio
+        # path — the review fields are the fact graph, not extractor B.
+        projection = project_structured_fields(clinical_facts_v2)
+        note["fields"] = projection["clinical_note_fields"]
+        note["fields_source"] = "clinical_facts_v2"
+        note["text"] = clinical.render_clinical_note_text(note["fields"])
+        rx["fields"] = projection["prescription_fields"]
+        rx["fields_source"] = "clinical_facts_v2"
+        rx["text"] = prescription_mod.render_prescription_text(rx["fields"])
+        note["warnings"] = projection["warnings"]
+        note["confidence"] = projection["confidence"]
+        note["confidence_note"] = projection["confidence_note"]
 
         return {
             "transcript": {

@@ -370,12 +370,31 @@ NOTE_LAYOUT = (
     ("symptoms_reported", "Symptoms reported"),
     ("denies", "Explicitly denied"),
     ("current_treatment_discussed", "Current treatment discussed"),
+    ("onset_trigger", "Onset / trigger"),
+    ("temporal_course", "Temporal course"),
+    ("aggravating_factors", "Aggravating factors"),
+    ("relieving_factors", "Relieving factors"),
+    ("treatment_response", "Treatment response"),
+    ("duration", "Duration"),
+    ("pmh", "Past medical history"),
+    ("psh", "Past surgical history"),
+    ("medications", "Medications"),
+    ("allergies", "Allergies"),
+    ("family_history", "Family history"),
+    ("social_history", "Social history"),
+    ("ros", "Review of systems"),
     ("physical_findings", "Physical findings"),
     ("impression", "Impression / provisional diagnosis"),
     ("investigations", "Investigations suggested"),
-    ("treatment_response", "Treatment response"),
+    ("plan", "Plan"),
+    ("referral_context", "Referral context"),
+    ("other_documentation", "Other documentation"),
     ("additional_remarks", "Additional remarks"),
 )
+
+# Fields the projection renders as strings but the layout skips when empty —
+# a field absent from the layout (older records) simply does not render.
+_LAYOUT_KEYS = {key for key, _ in NOTE_LAYOUT}
 
 
 def render_clinical_note_text(fields: dict) -> str:
@@ -384,11 +403,36 @@ def render_clinical_note_text(fields: dict) -> str:
     Fields are the single source of truth: the doctor edits fields during
     review, and the exported document must reflect those edits rather than a
     text block frozen at generation time.
+
+    Every field the projection carries is rendered (the layout above is the
+    projection's key set plus the historical extras), so nothing the fact
+    graph documented is dropped from the reviewed document. List fields
+    render as comma lists; empty lists render as explicitly not documented.
     """
     lines = ["Clinical Notes:"]
-    for index, (key, heading) in enumerate(NOTE_LAYOUT, start=1):
+    index = 0
+    for key, heading in NOTE_LAYOUT:
+        if key not in fields:
+            continue
+        index += 1
         value = fields.get(key)
+        if isinstance(value, dict):
+            # Structured rows (e.g. diagnoses with status) render as
+            # "Name (status)" — the certainty is clinical content.
+            value = ", ".join(
+                f"{d.get('name')} ({d.get('status')})"
+                if isinstance(d, dict) and d.get("name") else str(d)
+                for d in ([value] if "name" in value else [])) or str(value)
         if isinstance(value, list):
-            value = ", ".join(str(v) for v in value) if value else "Not specified"
-        lines.append(f"{index}. {heading}: {value if value not in (None, '') else 'Not specified'}")
+            parts = []
+            for item in value:
+                if isinstance(item, dict) and item.get("name"):
+                    status = item.get("status") or ""
+                    parts.append(f"{item['name']} ({status})" if status
+                                 else str(item["name"]))
+                else:
+                    parts.append(str(item))
+            value = ", ".join(parts) if parts else "Not documented."
+        rendered = value if value not in (None, "") else "Not specified"
+        lines.append(f"{index}. {heading}: {rendered}")
     return "\n".join(lines) + "\n"

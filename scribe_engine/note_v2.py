@@ -650,6 +650,19 @@ def _plan_lines(facts: list[dict]) -> list[str]:
         attrs = f.get("attributes") or {}
         if f["fact_type"] == "PLAN" and f["status"] == "ABSENT":
             out.append(_sentence(f"{_cap(f['english'])} (explicitly stated)"))
+        elif f["fact_type"] == "RECOMMENDATION" and \
+                f["status"] == "RECOMMENDED" and \
+                any(o is not f and o["fact_type"] in ("TREATMENT", "PROCEDURE")
+                    and o["status"] == "RECOMMENDED"
+                    and o["source_span"] and f["source_span"]
+                    and not (o["source_span"][1] <= f["source_span"][0]
+                             or f["source_span"][1] <= o["source_span"][0])
+                    for o in facts):
+            # The same clause already yielded a specific recommended item
+            # ("I would be grateful if you could refer him to a consultant
+            # orthopaedic surgeon") — the generic restatement ("specialist
+            # opinion / expert review requested") adds nothing to the Plan.
+            continue
         elif f["fact_type"] in ("TREATMENT", "PROCEDURE", "RECOMMENDATION"):
             if f["status"] == "CONSIDERED":
                 out.append(_sentence(

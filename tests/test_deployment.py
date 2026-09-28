@@ -172,8 +172,12 @@ def test_text_flow_produces_note_and_prescription(auth_client):
                                  json={"transcript": transcript}).json()
 
     assert processed["status"] == "ready"
-    note = processed["result"]["clinical_note"]["fields"]
-    assert "chest pain" in note["symptoms_reported"]
+    note = processed["result"]["clinical_note"]
+    fields = note["fields"]
+    # Fields are a projection of the fact graph: labels are clinician-cased
+    # ("Chest pain"), so the assertion is case-insensitive.
+    assert "chest pain" in fields["symptoms_reported"].lower()
+    assert note.get("fields_source") == "clinical_facts_v2"
     assert processed["result"]["prescription"]["fields"] is not None
     assert processed["result"]["speakers"]["method"] == "explicit_roles"
 

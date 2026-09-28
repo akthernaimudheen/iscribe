@@ -787,6 +787,7 @@ _DIAGNOSIS_CONDITION_WORDS = (
     "pneumonia", "asthma", "diabetes", "hypertension", "migraine",
     "tuberculosis", "malaria", "dengue", "typhoid", "gout", "sciatica",
     "eczema", "anaemia", "anemia", "seizure", "stroke",
+    "plantar fasciitis", "tendinitis", "tendonitis",
 )
 _DIAGNOSIS_CONDITION_RE = re.compile(
     r"\b((?:[a-z][a-z'\-]*\s+){0,2}(?:"
@@ -1392,8 +1393,13 @@ _GENERIC_INJURY_WORDS = {"injury", "injuries", "accident", "pain", "pain free",
                         "strain", "sprain", "whiplash", "spasm"}
 
 # Leading filler that a dictation puts in front of the diagnosis itself.
+# First-person certainty cues ("I suspect plantar fasciitis") are CUES, not
+# part of the condition's name: the cue decides certainty in _diagnosis_facts,
+# and leaving it inside the term produced diagnoses literally named
+# "I suspect plantar fasciitis".
 _TERM_LEAD_RE = re.compile(
-    r"^(?:a|an|the|her|his|their|my|no|other|and|with|of|is|are|was|were|be|"
+    r"^(?:(?:i|we)\s+)?(?:suspect(?:ed)?|think|believe|wonder(?:\s+if)?|"
+    r"a|an|the|her|his|their|my|no|other|and|with|of|is|are|was|were|be|"
     r"been|has|have|had|sustained|suffered|developed|reported|possible|possibly|"
     r"likely|unresolved|type|style|slight|severe|chronic|acute)\s+", re.I)
 
@@ -1494,7 +1500,7 @@ _METADATA_RULES = (
     ("referral_addressee",
      r"\bdear\s+((?:dr|mr|mrs|ms|miss|sir|madam)\.?\s*[A-Z][a-z]*)"),
     ("referral_recipient_role",
-     r"\bconsultant\s+([a-z][a-z ]{2,40}?)(?=\s*,|\s*in\b|$)"),
+     r"\bconsultant\s+([a-z][a-z ]{2,40}?)(?=\s*(?:,|\bin\b|\bfor\b|$))"),
     ("accident_time",
      r"\b(?:accident|impact)\b[^.]{0,20}?\b(\d{1,2}[:.]\d{2}\s*(?:am|pm)?)\b"),
 )
@@ -1613,6 +1619,12 @@ def extract_metadata(text: str, clause_spans: list[tuple[int, int] | None],
         # joined value when an upload produced anonymous turns; they are turn
         # structure, not document content.
         value = _SPEAKER_LABEL_RE.sub("", value)
+        # A metadata rule's tail capture runs to the next full stop, so an
+        # unsigned dictation stitch ("...07700900123, Yours sincerely, Dr X")
+        # must be cut at the signature — the sign-off is not part of the value.
+        value = re.sub(
+            r"\s*,?\s*\b(?:yours sincerely|yours faithfully|kind regards|"
+            r"with kind regards|best regards)\b.*$", "", value, flags=re.I)
         value = re.sub(r"\s{2,}", " ", value).strip(" .,;:")
         if not value or key in meta:
             return
