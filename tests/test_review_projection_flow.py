@@ -140,3 +140,41 @@ def test_complete_refuses_unreviewed_projection_fields(app_module):
         # well-populated must never let the clinician skip sign-off.
         resp = c.post(f"/api/consultations/{cid}/complete")
         assert resp.status_code in (409, 400)
+
+
+def test_retry_of_completed_recording_can_complete_again(app_module):
+    """Production bug (job 9046678a4209): a successful RETRY of a previously
+    completed recording crashed with sqlite3.IntegrityError, because the
+    idempotency index allows only one 'completed' row per (consultation,
+    recording). The newest completion must supersede the old terminal row —
+    otherwise reprocessing (e.g. after an extraction fix) is impossible."""
+    cid = "retrycase123456"
+    with TestClient(app_module.app):
+        store = app_module.rt.store  # lifespan-managed connection
+        store.create({
+            "id": cid, "patient_id": "RETRY-001", "doctor": "Dr.",
+            "department": "General Medicine",
+            "consultation_type": "General Consultation", "language": "en",
+            "status": "created", "active_stage": None, "stages": [],
+            "audio_file": None, "audio_purged": False, "source": None,
+            "result": None, "error": None, "reviewed": False,
+            "completed_at": None, "created_at": "2026-01-01 00:00:00",
+            "hospital_id": app_module.settings.hospital_id, "created_by": None,
+        })
+        job1 = store.create_job(cid, "retrycase123456.webm")
+        store.update_job(job1["job_id"], status="completed")
+
+        # A second attempt for the same recording must be able to complete too.
+        job2 = store.create_job(cid, "retrycase123456.webm")
+        assert job2["job_id"] != job1["job_id"]
+        store.update_job(job2["job_id"], status="completed")  # must not raise
+
+        # A third retry still works (the same demotion applies).
+        job3 = store.create_job(cid, "retrycase123456.webm")
+        store.update_job(job3["job_id"], status="completed")
+
+        assert store.get_job(job1["job_id"])["status"] == "superseded"
+        assert store.get_job(job2["job_id"])["status"] == "superseded"
+        assert store.get_job(job3["job_id"])["status"] == "completed"
+        # The pending-job gate is unaffected by history rows.
+        assert store.has_pending_job(cid) is False

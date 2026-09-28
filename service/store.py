@@ -420,6 +420,27 @@ class ConsultationStore:
             return
         vals.append(job_id)
         with self._lock:
+            # The idempotency index allows only ONE active/terminal-success row
+            # per (consultation, recording): status IN (queued, processing,
+            # completed). A RETRY of a previously-completed recording creates a
+            # new job row; when that retry succeeds, marking it 'completed'
+            # would collide with the older completed row and raise
+            # sqlite3.IntegrityError — a successful retry was therefore
+            # IMPOSSIBLE (observed on prod: job 9046678a4209). A terminal
+            # history row is demoted to 'superseded' first; the newest
+            # completed job owns the terminal state, and the audit story (all
+            # attempts retained) is unchanged.
+            new_status = fields.get("status")
+            if new_status == "completed":
+                self._conn.execute(
+                    "UPDATE documentation_jobs SET status = 'superseded' "
+                    "WHERE consultation_id = (SELECT consultation_id FROM "
+                    "documentation_jobs WHERE job_id = ?) "
+                    "AND recording_key = (SELECT recording_key FROM "
+                    "documentation_jobs WHERE job_id = ?) "
+                    "AND status = 'completed' AND job_id != ?",
+                    (job_id, job_id, job_id),
+                )
             self._conn.execute(
                 f"UPDATE documentation_jobs SET {', '.join(cols)} WHERE job_id = ?",
                 vals,
