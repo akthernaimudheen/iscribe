@@ -79,7 +79,14 @@ def check_policy(provider, policy: dict) -> None:
         )
 
     required_region = policy.get("region")
-    if required_region:
+    # A residency requirement can only bind a provider that RECEIVES the
+    # audio. An on-host provider (the Malayalam sidecar, local Whisper)
+    # processes on the hospital's own machine — there is no third-party
+    # region to verify, and its undeclared data location must not fail the
+    # check. An explicit 'global' setting declares that no residency
+    # guarantee is required, so it constrains nothing either.
+    if required_region and str(required_region).lower() != "global" \
+            and rc.get("audio_sent_off_host"):
         location = provider.data_location() if hasattr(provider, "data_location") \
             else "unknown"
         # Exact, declared matches only: map the region code to the location

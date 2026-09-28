@@ -1138,6 +1138,36 @@ def test_43_policy_block_provider_mismatch_and_offhost():
     assert exc.value.reason == "off_host_not_allowed"
 
 
+def test_43a_policy_region_does_not_bind_on_host_providers():
+    """A residency requirement only constrains providers that RECEIVE the
+    audio. The Malayalam sidecar runs on the hospital's own machine (never
+    off-host) and does not declare a data location — that undeclared location
+    must NOT fail the region check, and 'global' must constrain nothing.
+
+    Regression: production blocked every Malayalam consultation with
+    region_mismatch because the check compared an on-host provider's
+    undeclared location against the configured region."""
+    from scribe_engine.stt.malayalam_provider import MalayalamSidecarProvider
+
+    sidecar = MalayalamSidecarProvider()
+    rc = sidecar.retention_configuration()
+    assert not rc.get("audio_sent_off_host")  # precondition: on-host
+    # No raise, for any required region, including the production default.
+    for region in ("global", "in", "eu", "au"):
+        check_policy(sidecar, {"region": region})
+
+
+def test_43b_policy_region_still_binds_off_host_providers():
+    """The fix must not weaken residency enforcement for hosted providers:
+    a global-endpoint Deepgram still fails an 'in' requirement."""
+    provider = _FakeOffHostProvider(endpoint="api.deepgram.com")
+    with pytest.raises(STTPolicyBlocked) as exc:
+        check_policy(provider, {"region": "in"})
+    assert exc.value.reason == "region_mismatch"
+    # 'global' requirement + global endpoint = no residency claim demanded.
+    check_policy(provider, {"region": "global"})  # no raise
+
+
 def test_44_pipeline_preflight_refuses_to_send_audio(app_module, auth_client):
     """Scenario D/E end-to-end: a policy violation must stop the job before
     any provider call; source audio untouched; no partial note; audited."""
