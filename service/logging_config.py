@@ -35,6 +35,45 @@ CONTENT_BEARING_LOGGERS = (
 MAX_MESSAGE_CHARS = 300
 
 
+class AccessLogQueryScrubFilter(logging.Filter):
+    """Strip query strings from uvicorn access-log records.
+
+    The audio replay endpoint issues short-lived, cid-bound tokens as a query
+    parameter (``?expires=...``). Uvicorn's default access log records the
+    full request target, so every audio replay would persist a usable token
+    into a plain-text log file. Access logs never need query strings, so the
+    filter drops them wholesale. Applies to the structured-args records
+    uvicorn emits by default and to pre-formatted strings as a fallback.
+    """
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if record.args:
+            args = list(record.args)
+            for i, arg in enumerate(args):
+                if isinstance(arg, str) and "?" in arg and " " not in arg:
+                    args[i] = arg.split("?", 1)[0]
+            record.args = tuple(args)
+            return True
+        if isinstance(record.msg, str) and "?" in record.msg:
+            import re
+
+            record.msg = re.sub(r"\?[^\s\"]*", "", record.msg)
+        return True
+
+
+def attach_access_log_scrubber() -> None:
+    """Attach the query scrubber to uvicorn's access logger (idempotent).
+
+    Called from the app lifespan so it runs AFTER uvicorn has configured its
+    own loggers (config at import time would be overwritten by uvicorn.run).
+    """
+    access_logger = logging.getLogger("uvicorn.access")
+    for f in access_logger.filters:
+        if isinstance(f, AccessLogQueryScrubFilter):
+            return
+    access_logger.addFilter(AccessLogQueryScrubFilter())
+
+
 class PHIRedactionFilter(logging.Filter):
     """Backstop: truncate over-long log messages from third-party libraries.
 

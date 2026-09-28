@@ -16,6 +16,8 @@ uploads/
 *.db
 *.sqlite3
 *.sqlite3-journal
+# Database backups (PHI) — also never enter git
+/iscribe-backups/
 /logs/
 *.log
 

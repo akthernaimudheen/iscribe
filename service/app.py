@@ -351,6 +351,11 @@ def _recover_stuck_jobs() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Uvicorn installs its own logging config during run(); attaching the
+    # query-string scrubber here (post-config) is the only reliable moment.
+    from .logging_config import attach_access_log_scrubber
+    attach_access_log_scrubber()
+
     boot = Timer()
     boot.__enter__()
 
