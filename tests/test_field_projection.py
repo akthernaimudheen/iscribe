@@ -42,7 +42,7 @@ There is tenderness over the left medial arch.
 I suspect plantar fasciitis and the clinician considered this.
 A steroid injection would benefit from consideration.
 I would be grateful if you could refer him to a consultant orthopaedic surgeon for a specialist opinion.
-Solicitors reference: HW / CE. Date of birth: 06/22/1972. Address: 1, The House, 2, The Road, Liverpool L13. Telephone: 07700900123.
+Solicitors reference: ZZ / QQ. Date of birth: 01/23/1945. Address: 12, Sample Lane, Testtown TT10 1AA. Telephone: 07700900099.
 Yours sincerely, Dr B Reference."""
 
 
@@ -123,9 +123,9 @@ def test_referral_recipient_role(projection):
 def test_other_documentation_metadata(projection):
     other = projection["clinical_note_fields"]["other_documentation"].lower()
     assert "solicitors reference" in other
-    assert "06/22/1972" in other
-    assert "liverpool" in other
-    assert "07700900123" in other
+    assert "01/23/1945" in other
+    assert "testtown" in other
+    assert "07700900099" in other
 
 
 # ---------------------------------------------------------------------------
