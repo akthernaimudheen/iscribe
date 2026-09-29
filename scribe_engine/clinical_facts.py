@@ -55,7 +55,9 @@ import unicodedata
 from dataclasses import dataclass, field
 
 from . import normalization as N
-from .semantic import MEDICATION_CONCEPTS, _merged_lexicon, _post_pass, load_semantics
+from .semantic import (FAMILY_RELATIONS, MEDICATION_CONCEPTS,
+                       _merged_lexicon, _post_pass, family_subject_of,
+                       load_semantics)
 
 # ---------------------------------------------------------------------------
 # Vocabulary (closed sets — the note renderer and validator both rely on them)
@@ -563,6 +565,7 @@ def extract_mentions(text: str, lexicon: dict | None = None) -> list[dict]:
 
     raw_records: list[dict] = []
     entities: list[N.ClinicalEntity] = []
+    pending_duration: tuple[str, int | None, str | None] | None = None
     for idx, clause in enumerate(clauses):
         cn = N._norm(clause)
         question = N._is_question(cn, lex)
@@ -585,6 +588,19 @@ def extract_mentions(text: str, lexicon: dict | None = None) -> list[dict]:
                        if not any(s < me and ms < e for ms, me in markup_spans)]
         resolution_scope = N._resolution_scope(cn, matches, lex)
 
+        # Q→A duration handoff: a clause that states a duration but names no
+        # concept ("അഞ്ച് ദിവസം ആയി" — "for five days", Malayalam narration
+        # dropping the subject after the Q→A split) is the ANSWER to the
+        # preceding question. The duration belongs to the finding the patient
+        # names in the NEXT clause ("വയറു വേദന ...") — the same utterance
+        # flow, one hop only, and never across a clause that asserts its own
+        # polarity verb. Without the hop the answer's duration is silently
+        # dropped (it lives in a concept-free clause) — the exact loss this
+        # fix set out to close; without the one-hop limit a stray duration
+        # could ride across an unrelated topic change.
+        if not matches and duration and pending_duration is None \
+                and not question:
+            pending_duration = (duration, dval, dunit)
         for start, end, cid, surface in matches:
             spec = lex["concepts"][cid]
             status, confidence, reason = N._status_for(cn, start, end, lex, question)
@@ -645,11 +661,22 @@ def extract_mentions(text: str, lexicon: dict | None = None) -> list[dict]:
                     and not conditional):
                 status, confidence = N.RESOLVED, max(confidence, 0.8)
 
+            # Consume the pending Q→A duration: this mention's clause had no
+            # duration of its own, so the answer clause's duration (one hop
+            # back) is the temporal evidence for THIS finding. The hop is
+            # cleared by the first concept-bearing clause whether or not the
+            # clause asserts anything else, so a duration can never travel
+            # past a mention to a later, unrelated one.
+            eff_duration, eff_dval, eff_dunit = duration, dval, dunit
+            if not eff_duration and pending_duration is not None:
+                eff_duration, eff_dval, eff_dunit = pending_duration
+                pending_duration = None
             entity = N.ClinicalEntity(
                 concept=cid, english=spec["english"], surface_text=surface,
                 status=status,
                 temporality=(N.RECURRENT if _recurrent else (temporality or N.CURRENT)),
-                duration=duration, duration_value=dval, duration_unit=dunit,
+                duration=eff_duration, duration_value=eff_dval,
+                duration_unit=eff_dunit,
                 severity=N._nearest_attribute(
                     cn, start, {**lex.get("severity_markers", {}),
                                 **lex.get("english_severity_markers", {})}),
@@ -658,7 +685,7 @@ def extract_mentions(text: str, lexicon: dict | None = None) -> list[dict]:
                     cn, start, lex.get("body_locations", {}), window=20),
                 pain_quality=N._nearest_attribute(
                     cn, start, lex.get("pain_quality", {}), window=30),
-                onset=(duration if (duration and N._ONSET_RE.search(cn)) else None),
+                onset=(eff_duration if (eff_duration and N._ONSET_RE.search(cn)) else None),
                 confidence=round(confidence, 2), source_clause=clause.strip(),
                 conditional=conditional, uncertainty_reason=reason,
             )
@@ -668,7 +695,7 @@ def extract_mentions(text: str, lexicon: dict | None = None) -> list[dict]:
                 "modality": modality,
                 "confidence": entity.confidence, "question": question,
                 "conditional": conditional, "uncertainty_reason": reason,
-                "duration": duration, "severity": entity.severity,
+                "duration": eff_duration, "severity": entity.severity,
                 "body_location": entity.body_location,
                 "temporality": entity.temporality,
                 "frequency": frequency_norm,
@@ -787,18 +814,23 @@ _DIAGNOSIS_CONDITION_WORDS = (
     "pneumonia", "asthma", "diabetes", "hypertension", "migraine",
     "tuberculosis", "malaria", "dengue", "typhoid", "gout", "sciatica",
     "eczema", "anaemia", "anemia", "seizure", "stroke",
-    "plantar fasciitis", "tendinitis", "tendonitis",
+    "plantar fasciitis", "tendinitis", "tendonitis", "fever",
 )
+# "Viral fever" — the most common primary-care diagnosis in Kerala — reads as
+# a symptom phrase to every other rule. It is a diagnosis only with an
+# explicit certainty cue (suspected/confirmed); a bare patient "fever" has no
+# cue and still never becomes a diagnosis.
 _DIAGNOSIS_CONDITION_RE = re.compile(
     r"\b((?:[a-z][a-z'\-]*\s+){0,2}(?:"
     + "|".join(_DIAGNOSIS_CONDITION_WORDS) + r"))\b", re.I)
 _DIAGNOSIS_CUE_CONFIRMED = re.compile(
-    r"\b(?:was|were|is|are|has been|have been)\s+diagnosed\b|\bdiagnosis of\b|"
-    r"\bdiagnosed as\b|\bsustained\b|\bsuffered\b|\bconsistent with\b|"
+    r"\b(?:was|were|is|are|has been|have been)\s+diagnosed\b|\bdiagnosis of\b"
+    r"|\bdiagnosis\s*:|\bimpression\s*:"
+    r"|\bdiagnosed as\b|\bsustained\b|\bsuffered\b|\bconsistent with\b|"
     r"\bcompatible with\b|\brevealed\b|\bshows?\b|in my opinion\b|\bassessment\b", re.I)
 _DIAGNOSIS_CUE_SUSPECTED = re.compile(
     r"\b(?:wonder if|query|possible|possibly|suspect(?:ed)?|likely|think (?:this|it)|"
-    r"might be|could be|may be|rule out|unresolved)\b", re.I)
+    r"might be|could be|may be|rule out|unresolved|looks? like)\b", re.I)
 
 # PMH statements (explicit ownership / explicit absence), English + Malayalam.
 _PMH_NEGATIVE_RE = re.compile(
@@ -1093,8 +1125,27 @@ def _statement_facts(
         # -- diagnoses -------------------------------------------------------
         # A diagnosis is an assessment statement wherever it was dictated, so
         # its section is ASSESSMENT (not the narrative section the sentence
-        # happens to sit in).
+        # happens to sit in). A family member's condition ("his father
+        # suffered a stroke") is never the patient's diagnosis: it becomes a
+        # HISTORY fact in the family-history section (FP-7), keeping the
+        # evidence while moving the attribution.
+        _fam_subject = family_subject_of(text, load_semantics())
         for dx in _diagnosis_facts(text, span):
+            if _fam_subject:
+                add(fact_type="HISTORY", english=dx["english"],
+                    status="PRESENT", certainty="CONFIRMED",
+                    evidence="EXPLICIT_PRESENT", section="family_history",
+                    speaker=(_fam_subject if _fam_subject in FAMILY_RELATIONS
+                             else "family"),
+                    confidence=dx.get("confidence", 0.7),
+                    source_text=text, source_span=span,
+                    mention_span=dx.get("mention_span"),
+                    evidence_text=dx.get("evidence_text") or dx["english"],
+                    certainty_evidence=dx.get("certainty_evidence"),
+                    attributes={"diagnosis_basis":
+                                (dx.get("attributes") or {}).get("diagnosis_basis")},
+                    section_evidence=section.evidence)
+                continue
             add(**{**dx, "source_text": text, "source_span": span,
                    "section": dx.get("section", "assessment"),
                    "speaker": "clinician",
@@ -1401,7 +1452,7 @@ _TERM_LEAD_RE = re.compile(
     r"^(?:(?:i|we)\s+)?(?:suspect(?:ed)?|think|believe|wonder(?:\s+if)?|"
     r"a|an|the|her|his|their|my|no|other|and|with|of|is|are|was|were|be|"
     r"been|has|have|had|sustained|suffered|developed|reported|possible|possibly|"
-    r"likely|unresolved|type|style|slight|severe|chronic|acute)\s+", re.I)
+    r"likely|unresolved|type|style|slight|severe|chronic|acute|looks?|like)\s+", re.I)
 
 
 def _clean_diagnosis_term(term: str) -> str:
@@ -1846,6 +1897,15 @@ def _episode_facts(mentions: list[dict], sections: list[SectionAssignment],
                 and section_name in ("assessment", "prognosis", "plan",
                                      "referral_context"):
             section_name = "hpi"
+        # FP-7 (generalized): a family member's finding is family history —
+        # in every section, not just when it was dictated inside the PMH
+        # block. "My son had fever last week" must never read as the
+        # patient's current symptom. The fact survives with its evidence; only
+        # the section (and so the rendering) changes.
+        subject = m.get("subject")
+        if subject in FAMILY_RELATIONS \
+                and section_name != "family_history":
+            section_name = "family_history"
 
         facts.append({
             "fact_id": "",
@@ -2144,7 +2204,7 @@ def build_clinical_facts(raw_text: str, turns: list[dict] | None = None,
 
     def speaker_of(idx: int, mention: dict) -> str:
         subject = (mention or {}).get("subject")
-        if subject in ("mother", "father", "family"):
+        if subject in FAMILY_RELATIONS:
             return subject
         if document_type in ("REFERRAL_LETTER", "MEDICOLEGAL_REPORT",
                              "MEDICAL_REPORT"):

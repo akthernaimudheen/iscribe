@@ -142,6 +142,15 @@ def _split_on_verbs(chunk: str, lex: dict) -> list[str]:
         | {q for q in lex.get("question_markers", []) if q != "?"},
         key=len, reverse=True,
     )
+    # Wh-question words open a clause; they never END one. Excluding the
+    # MOVE_WH family from the verb list keeps "...വേദന ഏത് ഭാഗത്താ" from being
+    # cut right after ഏത്, orphaning the question from the concept it asks
+    # about ("ഷുഗർ എത്രയാണ്" was split mid-question this way). The separate
+    # wh-opener pass below still starts a NEW clause where a question follows
+    # an answer.
+    wh_only = {q for q in lex.get("question_markers", [])
+               if q != "?" and any(_norm(q).startswith(w) for w in _MOVE_WH)}
+    verbs = [v for v in verbs if v not in wh_only]
     if not chunk.strip():
         return []
 
@@ -164,6 +173,73 @@ def _split_on_verbs(chunk: str, lex: dict) -> list[str]:
             i += 1
     if cursor < len(chunk):
         out.append(chunk[cursor:])
+    # Wh-question pass: a clause that OPENS with a MOVE_WH word (ഏത്, എവിടെ,
+    # എപ്പോൾ...) starts a new predication. "...അഞ്ച് ദിവസം ആയി വയറു വേദന | ഏത്
+    # ഭാഗത്താ" — the answer (duration + symptom) must not share a clause with
+    # the next question, or the question's interrogative scope swallows the
+    # finding and the duration rides onto unrelated concepts. Splitting BEFORE
+    # the wh-token (never on every punctuation mark) keeps each turn's scope
+    # intact. QUANT_WH words (എത്ര*, എന്ത*) are excluded: they quantify the NP
+    # they follow ("blood pressure എത്രയാണ്") and the verb-split already
+    # isolated that question correctly.
+    if wh_only and len(out) > 0:
+        final: list[str] = []
+        for piece in out:
+            cuts: list[int] = []
+            piece_n = _norm(piece)
+            cursor_scan = 0
+            for token in piece_n.split(" "):
+                start = piece_n.find(token, cursor_scan)
+                cursor_scan = start + len(token)
+                if start > 0 and any(token.startswith(v) for v in wh_only):
+                    cuts.append(start)
+            if not cuts:
+                final.append(piece)
+                continue
+            prev = 0
+            for cpos in cuts:
+                if cpos > prev:
+                    final.append(piece[prev:cpos])
+                prev = cpos
+            final.append(piece[prev:])
+        out = [p for p in final if p.strip()]
+    # Wh-duration Q→A pass: a bare "എത്ര <unit>" question that runs straight
+    # into its own answer (one ASR turn, no punctuation, patient repeats
+    # "അഞ്ച് ദിവസം..." before any verb) must still split at the answer's own
+    # numeral+unit phrase. Without this, the answer's duration is extracted
+    # inside the QUESTION clause and either lost or spread across every
+    # concept that follows. The boundary is the FIRST numeral that directly
+    # precedes a duration unit after a wh-duration opener — a linguistic
+    # construction, not a keyword for one consultation.
+    if wh_only and len(out) > 0:
+        qa_final: list[str] = []
+        numerals = {_norm(k) for k in lex.get("numerals", {})}
+        units = {_norm(k) for k in lex.get("duration_units", {})}
+        for piece in out:
+            if not _wh_question_opener(piece, lex):
+                qa_final.append(piece)
+                continue
+            piece_n = _norm(piece)
+            toks = piece_n.split(" ")
+            boundary = None
+            cursor_scan = 0
+            positions: list[tuple[str, int]] = []
+            for token in toks:
+                start = piece_n.find(token, cursor_scan)
+                cursor_scan = start + len(token)
+                positions.append((token, start))
+            for i, (token, start) in enumerate(positions[:-1]):
+                nxt_token, nxt_start = positions[i + 1]
+                if (token in numerals and nxt_token in units
+                        and start > 0):
+                    boundary = start
+                    break
+            if boundary:
+                qa_final.append(piece_n[:boundary])
+                qa_final.append(piece_n[boundary:])
+            else:
+                qa_final.append(piece)
+        out = [p for p in qa_final if p.strip()]
     return [p for p in out if p.strip()] or [chunk]
 
 
@@ -178,6 +254,46 @@ _COMBINING = tuple(chr(c) for c in
 # എങ്കിലും ("even if") belongs to the conditional verb it follows, so it must
 # stay inside that clause — ഉണ്ടെങ്കിലും is one verb form, not verb + new clause.
 _SUBORDINATORS = ("എന്ന്", "എന്നു", "എന്ന", "എന്ത്", "എങ്കിലും")
+
+# Negative existential quantifiers: "nothing / nothing else". They negate the
+# EXISTENCE OF ADDITIONAL findings, never the findings named before them.
+_EXISTENTIAL_NEGATIONS = ("ഒന്നുമില്ല", "ഒന്നുമല്ല", "ഒന്നും ഇല്ല", "ഒന്നും വേണ്ട")
+
+# Malayalam wh-question words, clause-INITIAL interrogatives (unlike ഉണ്ടോ /
+# ഇല്ലേ / ആണോ, which are verb-FINAL yes/no cues and stay in the verb list).
+# Closed set ordered longest-first so എത്രയാണ് wins over എത്ര.
+# Two subclasses behave differently at a clause boundary:
+#   QUANT_WH quantifies the NP it follows ("blood pressure എത്രയാണ്" = "how much
+#     is the blood pressure"): it must stay with that concept, and the original
+#     split-AFTER behaviour isolates the question correctly.
+#   MOVE_WH starts a NEW question of its own ("...വയറു വേദന | ഏത് ഭാഗത്താ" =
+#     "...abdominal pain | which part?"): it must MOVE to the next clause, or
+#     its interrogative scope swallows the finding the patient just named.
+_QUANT_WH = (
+    "എത്രയാണ്", "എന്തുകൊണ്ടാണ്", "എന്തുകൊണ്ട്", "എന്തായാലും", "എന്തെല്ലാം",
+    "എന്താണ്", "എന്നാണ്", "എന്താ", "എത്ര",
+)
+_MOVE_WH = (
+    "എവിടെയാണ്", "എവിടെയാ", "എങ്ങനെയാണ്", "ആരെങ്കിലും", "എവിടെ",
+    "എപ്പോൾ", "എങ്ങനെ", "ആരാണ്", "ഏതാണ്", "ഏത്", "ആര്",
+)
+_WH_OPENERS = _QUANT_WH + _MOVE_WH
+
+
+def _wh_question_opener(clause: str, lex: dict) -> bool:
+    """True when the clause OPENS with a wh-question word.
+
+    Wh-questions ("എന്താ പ്രശ്നം", "എത്ര ദിവസം ആയി", "എവിടെ വേദന") are clause-
+    INITIAL in Malayalam, unlike the polarity verbs that end a clause. A
+    question word anywhere later in a clause does not make the clause a
+    question — "അഞ്ച് ദിവസം ആയി വയറു വേദന ഏത് ഭാഗത്താ" is one duration answer
+    flowing into the doctor's next question, and treating it as ONE question
+    clause turned every finding inside it into a QUESTION.
+    """
+    stripped = (clause or "").strip()
+    if not stripped:
+        return False
+    return any(stripped.startswith(_norm(w)) for w in _WH_OPENERS)
 
 
 def _is_clause_end(chunk: str, end: int, lex: dict) -> bool:
@@ -393,20 +509,25 @@ def _extract_duration(clause: str, lex: dict) -> tuple[Optional[str], Optional[i
     units = {_norm(k): v for k, v in lex.get("duration_units", {}).items()}
 
     for unit_word, unit in sorted(units.items(), key=lambda kv: -len(kv[0])):
+        # EVERY occurrence of the unit word is a candidate: a clause that
+        # opens with the question's unit ("ദിവസം ആയി അഞ്ച് ദിവസം ...", after a
+        # Q→A boundary cut) has a unit with no numeral before it first, and
+        # the real answer's numeral+unit pair later. Scanning only the first
+        # occurrence silently dropped such durations.
         idx = clause.find(unit_word)
-        if idx < 0:
-            continue
-        before = clause[max(0, idx - 30):idx]
-        for num_word, value in sorted(numerals.items(), key=lambda kv: -len(kv[0])):
-            if before.rstrip().endswith(num_word) or num_word in before.split()[-2:]:
-                return f"{value} {unit}", value, unit
-        digits = re.findall(r"(\d+)\s*$", before.strip())
-        if digits:
-            return f"{int(digits[0])} {unit}", int(digits[0]), unit
-        # Compound words like ഒരാഴ്ചയായി carry the number inside.
-        for num_word, value in numerals.items():
-            if num_word in unit_word:
-                return f"{value} {unit}", value, unit
+        while idx >= 0:
+            before = clause[max(0, idx - 30):idx]
+            for num_word, value in sorted(numerals.items(), key=lambda kv: -len(kv[0])):
+                if before.rstrip().endswith(num_word) or num_word in before.split()[-2:]:
+                    return f"{value} {unit}", value, unit
+            digits = re.findall(r"(\d+)\s*$", before.strip())
+            if digits:
+                return f"{int(digits[0])} {unit}", int(digits[0]), unit
+            # Compound words like ഒരാഴ്ചയായി carry the number inside.
+            for num_word, value in numerals.items():
+                if num_word in unit_word:
+                    return f"{value} {unit}", value, unit
+            idx = clause.find(unit_word, idx + 1)
 
     m = re.search(r"(?:for|since)\s+(\d+)\s+(day|days|week|weeks|month|months|year|years)",
                   clause, re.IGNORECASE)
@@ -700,6 +821,18 @@ def _status_for(clause: str, start: int, end: int, lex: dict,
             if rest:
                 return (ABSENT if rest[0][1] == "neg" else PRESENT), 0.9, None
             return PRESENT, 0.75, None
+        # 'ഒന്നുമില്ല / ഒന്നുമല്ല' ("nothing / nothing else") is a negative
+        # EXISTENTIAL quantifier over the REST of the clause: "പനിയും ചുമയും
+        # ഉണ്ട്, ഒന്നുമില്ല" = "fever and cough, nothing else" — it denies
+        # ADDITIONAL findings, never the findings named before it. (The same
+        # flipped-to-RESOLVED misread existed for the older ഒന്നുമില്ല too.)
+        # Concepts AFTER it ("മറ്റ് ലക്ഷണങ്ങൾ ഒന്നുമല്ല") are still governed by
+        # it through the before_m path below.
+        existential = any(
+            clause[p:].split() and clause[p:].split()[0] in _EXISTENTIAL_NEGATIONS
+            for p, k in after_m if k == "neg")
+        if existential:
+            return PRESENT, 0.85, None
         return (ABSENT if after_m[0][1] == "neg" else PRESENT), 0.9, None
     if before_m:
         return (ABSENT if before_m[-1][1] == "neg" else PRESENT), 0.75, None
@@ -872,6 +1005,18 @@ def normalize_clinical_text(text: str, lexicon: dict | None = None) -> list[Clin
                         ent.confidence = 0.8
                         ent.uncertainty_reason = f"interrogative_tail:{tail}"
             elif polarity and not question:
+                # A negative-EXISTENTIAL ellipsis ("...ഉണ്ട് | ഒന്നുമല്ല") says
+                # "nothing ELSE", never "that thing is gone". It must not flip
+                # the previous finding to ABSENT (which merged into a false
+                # RESOLVED). Genuine denials ("...ഇല്ല", "ഇപ്പോൾ ഇല്ല") keep the
+                # ellipsis resolution.
+                clause_is_existential_neg = (
+                    any(k == "neg" for _p, k in polarity)
+                    and all(
+                        (clause[_p:].split() or [""])[0] in _EXISTENTIAL_NEGATIONS
+                        for _p, k in polarity if k == "neg"))
+                if clause_is_existential_neg:
+                    continue
                 for cid, surface in previous_concepts:
                     spec = lex["concepts"][cid]
                     status = ABSENT if polarity[0][1] == "neg" else PRESENT

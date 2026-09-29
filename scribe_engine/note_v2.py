@@ -863,14 +863,31 @@ def build_sections(document: dict) -> dict[str, list[dict]]:
         elif f["fact_type"] == "ALLERGY":
             # FP-7: a family member's allergy is family history, never the
             # patient's allergy list.
-            if (f.get("attributes") or {}).get("family_subject"):
+            if (f.get("attributes") or {}).get("family_subject") \
+                    or f.get("section") == "family_history":
                 add("family_history",
                     _sentence(f"Allergy to {f['english']} in a family member "
                               f"(family history)"), "EXPLICIT_PRESENT", f)
-            else:
-                add("allergies", ("No known allergies (explicitly denied)."
-                                  if f["status"] == "ABSENT" else "Allergy reported."),
-                    "EXPLICIT_ABSENT" if f["status"] == "ABSENT" else "EXPLICIT_PRESENT", f)
+            elif f["status"] == "QUESTIONED":
+                # Asked, never answered: the question renders where it was
+                # asked, and the allergy list stays untouched (the projected
+                # fields exclude it for the same reason).
+                add("other_documentation",
+                    f"allergy question: {f['english']} (asked, not asserted)",
+                    "QUESTIONED", f)
+            elif f["status"] == "ABSENT":
+                add("allergies", "No known allergies (explicitly denied).",
+                    "EXPLICIT_ABSENT", f)
+            elif f["status"] in ("PRESENT", "RESOLVED", "HISTORICAL",
+                                 "UNCERTAIN"):
+                # Name the allergen: "Allergy reported." next to a documented
+                # allergen hid the one thing the line exists to say.
+                add("allergies", _sentence(f"Allergy to {f['english']} reported"),
+                    "EXPLICIT_PRESENT", f)
+        elif f["fact_type"] == "SYMPTOM" and f["section"] == "family_history":
+            add("family_history", _sentence(
+                f"{_cap(_symptom_noun(f))} in a family member (family history)"),
+                "EXPLICIT_PRESENT", f)
     for f in facts:
         if f["speaker"] in ("mother", "father", "family"):
             add("family_history", _sentence(

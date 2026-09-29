@@ -32,6 +32,10 @@ from .note_v2 import (_assessment_lines, _cap, _exam_lines, _metadata_lines,
 NOT_MENTIONED = "Not mentioned"
 NOT_DOCUMENTED = "Not documented."
 
+# A documented negative on the patient's own allergies ("no known allergies",
+# asked and denied) is clinical content the clinician should see, not a blank.
+ALLERGY_DENIED = "No known allergies (explicitly denied)."
+
 _LOCATION_PREP_RE = None  # reserved; locations render via _subject_clause
 
 
@@ -63,6 +67,7 @@ def _clinical_note_fields(document: dict) -> dict:
     metadata = document.get("metadata") or {}
 
     symptoms = [f for f in facts if f["fact_type"] == "SYMPTOM"
+                and f.get("section") != "family_history"
                 and f["status"] in ("PRESENT", "ONGOING", "RESOLVED",
                                     "INTERMITTENT", "UNCERTAIN")]
 
@@ -95,6 +100,7 @@ def _clinical_note_fields(document: dict) -> dict:
     denies = sorted({_sentence(_symptom_noun(f)).rstrip(".")
                      for f in facts
                      if f["status"] == "ABSENT" and f["fact_type"] == "SYMPTOM"
+                     and f.get("section") != "family_history"
                      and f.get("concept")
                      and not (f.get("attributes") or {}).get("negative_statement")})
     fields_denies = ", ".join(denies) if denies else NOT_DOCUMENTED
@@ -176,20 +182,38 @@ def _clinical_note_fields(document: dict) -> dict:
                    if f["fact_type"] == "MEDICATION"
                    and f["status"] in ("PRESENT", "RESOLVED", "HISTORICAL")})
     fields_medications = ", ".join(meds) if meds else []
-    allergies = []
+    # Allergies carry the same polarity semantics as the note renderer: a
+    # documented denial renders as an explicit negative, a QUESTIONED allergy
+    # (asked, never answered) is never an allergy list entry, and allergen
+    # facts are deduplicated (statement + mention paths can both produce one).
+    allergies: list[str] = []
+    seen_allergens: set[str] = set()
     for f in facts:
-        if f["fact_type"] == "ALLERGY":
+        if f["fact_type"] != "ALLERGY":
+            continue
+        if f["status"] == "QUESTIONED":
+            continue
+        if (f.get("attributes") or {}).get("family_subject") \
+                or f.get("section") == "family_history":
+            continue
+        if f["status"] == "ABSENT":
+            if ALLERGY_DENIED not in allergies:
+                allergies.append(ALLERGY_DENIED)
+            continue
+        if _norm_label(f["english"]) not in seen_allergens:
+            seen_allergens.add(_norm_label(f["english"]))
             allergies.append(f["english"])
     fields_allergies = ", ".join(allergies) if allergies else NOT_DOCUMENTED
     family = sorted({f["english"] for f in facts
-                     if f.get("speaker") in ("mother", "father", "family")})
+                     if f.get("section") == "family_history"})
     fields_family = ", ".join(family) if family else NOT_DOCUMENTED
     social = sorted({f["english"] for f in facts
                      if f["fact_type"] == "SOCIAL_HISTORY"})
     fields_social = ", ".join(social) if social else NOT_DOCUMENTED
     ros_lines = []
     for f in facts:
-        if f["fact_type"] == "SYMPTOM" and f["status"] == "QUESTIONED":
+        if f["fact_type"] == "SYMPTOM" and f["status"] == "QUESTIONED" \
+                and f.get("section") != "family_history":
             ros_lines.append(_symptom_label(f))
     fields_ros = "; ".join(ros_lines) if ros_lines else NOT_DOCUMENTED
 

@@ -19,6 +19,7 @@ Context rules (all test-backed):
 from __future__ import annotations
 
 import json
+import re
 import unicodedata
 from pathlib import Path
 
@@ -216,12 +217,20 @@ def _merged_lexicon() -> dict:
 
 
 def _subject_of(clause: str, sem: dict) -> str:
-    """patient | mother | father | family | unknown.
+    """patient | mother | father | family | son | wife | ... | unknown.
 
     Family markers win over patient markers: "അമ്മയ്ക്ക് ഷുഗർ ഉണ്ട്" mentions
     the dative marker ക്ക് twice, but the family word is the one that refers to
-    the person the condition belongs to.
+    the person the condition belongs to. An anchored English possessive lead
+    ("my son had fever", "my wife has diabetes") claims the finding for that
+    relation the same way; a clause that includes the patient too ("my wife
+    and I both have diabetes") is excluded so the patient keeps their own
+    finding.
     """
+    m = _FAMILY_LEAD_RE.search(_norm(clause or ""))
+    if m and not _FAMILY_LEAD_EXCLUDE_RE.search(clause):
+        rel = m.group(1).lower()
+        return _RELATION_TO_SUBJECT.get(rel, rel)
     for subject, markers in sem.get("family_subject_markers", {}).items():
         if _contains_any(clause, markers):
             return subject
@@ -257,6 +266,22 @@ def _post_pass(entities: list[ClinicalEntity], sem: dict) -> list[ClinicalEntity
                 if _norm(surface) in clause:
                     e.context = f"allergen:{english}"
                     break
+
+        # FP-7 (generalized), non-controlled concepts: a family member's
+        # finding is family history, never the patient's own — "my son had
+        # fever", "my wife has asthma". Only the ANCHORED English possessive
+        # lead is applied here: the JSON family words are anywhere-in-clause
+        # markers tuned for the controlled dative constructions and would
+        # overreach on ordinary narrative clauses ("my mother brought me in
+        # for knee pain" — the knee pain is the patient's). Questions stay
+        # untouched: "Does your son have fever?" is answered by the patient's
+        # own turn, not framed by this clause.
+        if e.concept not in _CONTROLLED and e.status != QUESTION:
+            m = _FAMILY_LEAD_RE.search(clause)
+            if m and not _FAMILY_LEAD_EXCLUDE_RE.search(clause):
+                rel = m.group(1).lower()
+                e.subject = _RELATION_TO_SUBJECT.get(rel, rel)
+                e.context = "family_history"
 
         key = _CONTROLLED.get(e.concept)
         if not key:
@@ -308,8 +333,10 @@ def _post_pass(entities: list[ClinicalEntity], sem: dict) -> list[ClinicalEntity
                 or _contains_any_ci(clause, spec.get("high_markers_english", []))):
             e.context = "high"
 
-        # Family subject: family history, never conflated with the patient.
-        if e.subject in sem.get("family_subject_markers", {}):
+        # Family subject (controlled concepts): any non-patient, non-unknown
+        # subject — JSON family markers or the possessive lead — makes this
+        # family history, never conflated with the patient.
+        if e.subject not in ("patient", "unknown", None):
             e.context = "family_history"
 
     return entities
@@ -339,6 +366,61 @@ def semantic_normalize(text: str) -> list[ClinicalEntity]:
 # ---------------------------------------------------------------------------
 def _norm(text: str) -> str:
     return unicodedata.normalize("NFC", text or "")
+
+
+# Relations that make a clinical mention FAMILY HISTORY rather than a patient
+# finding (FP-7, generalized). The Malayalam JSON layer carries its own marker
+# words for mother/father/family; this tuple is the canonical subject set the
+# fact graph and the speaker attribution both key off.
+FAMILY_RELATIONS = (
+    "mother", "father", "family", "son", "daughter", "wife", "husband",
+    "brother", "sister", "uncle", "aunt", "grandmother", "grandfather",
+    "grandma", "grandpa", "parents", "mom", "dad",
+)
+
+_RELATION_TO_SUBJECT = {"mom": "mother", "dad": "father",
+                        "parents": "family"}
+
+# English possessive family subject at the clause start ("my son had fever",
+# "my wife has diabetes"). Anchored to the start (optionally after a leading
+# conjunction) and gated on a predicative cue, so "my son's school" or
+# "my wife called me" never match. A clause that ALSO includes the patient
+# ("my wife and I have diabetes", "me and my wife both have diabetes") is
+# excluded: the patient keeps their own finding rather than losing it to the
+# family-history bucket. Mid-clause possessives ("I am fine but my son had
+# fever") are NOT claimed by this rule — the mention stays patient-attributed
+# (the conservative pre-existing behaviour) rather than guessed.
+_FAMILY_LEAD_RE = re.compile(
+    r"^(?:\s*(?:and|but|or|also)\s*)?"
+    r"(?:my|our|his|her|their)\s+"
+    r"(son|daughter|wife|husband|brother|sister|uncle|aunt|grandmother|"
+    r"grandfather|grandma|grandpa|parents|family|mom|dad|mother|father)\b"
+    r"[^.!?;]{0,60}?\b(?:has|have|had|is|was|were|allergic|diagnosed|"
+    r"suffer(?:s|ed|ing)?|complain(?:s|ed|ing)?|experienc(?:es|ed|ing)?)\b",
+    re.I)
+
+_FAMILY_LEAD_EXCLUDE_RE = re.compile(
+    r"\bboth\b|\b(?:and|or)\s+(?:i|we)\b|\bme\s+and\b", re.I)
+
+
+def family_subject_of(clause: str, sem: dict) -> str | None:
+    """The family relation a clause's finding belongs to, or None.
+
+    Malayalam/JSON markers (അമ്മ, അച്ഛൻ, ...) win for their clauses; the
+    English possessive lead covers "my son had fever". Returns the canonical
+    subject string from FAMILY_RELATIONS, never a guess about unnamed
+    relatives.
+    """
+    text = _norm(clause or "")
+    m = _FAMILY_LEAD_RE.search(text)
+    if m and not _FAMILY_LEAD_EXCLUDE_RE.search(text):
+        return _RELATION_TO_SUBJECT.get(m.group(1).lower(),
+                                        m.group(1).lower())
+    for subject, markers in (sem or {}).get("family_subject_markers",
+                                            {}).items():
+        if _contains_any(text, markers):
+            return subject
+    return None
 
 
 def _contains_any(clause: str, markers: list[str]) -> bool:

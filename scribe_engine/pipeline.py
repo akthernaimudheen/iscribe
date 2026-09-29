@@ -291,14 +291,6 @@ class ScribeEngine:
             note["warnings"] = projection["warnings"]
             note["confidence"] = projection["confidence"]
             note["confidence_note"] = projection["confidence_note"]
-            # Clinical Intelligence V2 (document context -> section-aware,
-            # evidence-grounded typed facts -> deterministic note + fail-closed
-            # validator), mirroring the text flow.
-            clinical_facts_v2 = clinical_facts.build_clinical_facts(
-                transcript_text, labeled["turns"], roles_known=roles_known,
-                entities=normalized.get("entities", []),
-                corrected_text=corrected_text)
-            clinical_note_v2 = note_v2.render_clinical_note(clinical_facts_v2)
             self._stage_done(
                 "clinical",
                 f"symptoms={len(structured['symptoms'])}, "

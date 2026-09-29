@@ -669,6 +669,12 @@ def enrich_medication_facts(
 
     existing_spans: list[tuple[str, tuple[int, int]]] = []
     named_med_spans: list[tuple[str, tuple[int, int]]] = []
+    # Clauses the base extractor already owns for a concept: a lexicon match
+    # of the SAME concept inside one of these clauses is the same fact seen
+    # twice ("I am allergic to penicillin" — the statement path produced the
+    # ALLERGY fact; the lexicon path re-saw "penicillin" in the same clause
+    # with a one-character-different span, and both used to render).
+    existing_concept_clauses: list[tuple[str, tuple[int, int]]] = []
     for f in facts:
         if f.get("fact_type") == "MEDICATION" and f.get("mention_span"):
             existing_spans.append((f.get("concept") or "",
@@ -679,6 +685,10 @@ def enrich_medication_facts(
                                         "medicine", "injection"):
                 named_med_spans.append((f.get("concept") or "",
                                         tuple(f["mention_span"])))
+        if (f.get("fact_type") in ("MEDICATION", "ALLERGY")
+                and f.get("concept") and f.get("source_span")):
+            existing_concept_clauses.append((f["concept"],
+                                             tuple(f["source_span"])))
 
     for f in facts:
         if f.get("fact_type") not in ("MEDICATION", "ALLERGY"):
@@ -860,6 +870,25 @@ def enrich_medication_facts(
             if any(cid == mention["concept_id"]
                    and not (mspan[1] <= s[0] or s[1] <= mspan[0])
                    for cid, s in existing_spans):
+                continue
+            # Same concept already documented by the base extractor inside
+            # this clause (clause spans may differ by a trailing punctuation
+            # character): the lexicon path adds nothing new here.
+            if any(cid == mention["concept_id"]
+                   and not (cend <= s[0] or s[1] <= cstart)
+                   for cid, s in existing_concept_clauses):
+                continue
+            # An ALLERGY clause the base extractor already owns ("I am
+            # allergic to penicillin"): the lexicon re-saw the drug name with
+            # a different concept id (generic 'allergy' vs 'penicillin') and
+            # used to render a second, identical allergy fact.
+            if (classify_medication_status(
+                    clause, question=bool(_QUESTION_RE.search(clause)),
+                    speaker="unknown", existing_status="PRESENT",
+                    existing_conditional=False)[0] == "ALLERGY"
+                    and any(cid == "allergy"
+                            and not (cend <= s[0] or s[1] <= cstart)
+                            for cid, s in existing_concept_clauses)):
                 continue
             status, section = classify_medication_status(
                 clause, question=bool(_QUESTION_RE.search(clause)),
